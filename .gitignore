@@ -1,0 +1,8 @@
+*.sln
+*.csproj
+Library
+Temp
+*~
+*.swp
+*.swo
+
