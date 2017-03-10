@@ -3,17 +3,6 @@ using System.Collections;
 
 public class CubeController : MonoBehaviour {
 
-    // F L F U' R U F2 L2 U' L' B D' B' L2 U Mini Cube
-    // F U F R L2 B D' R D2 L D' B R2 L F U F VStripes
-    // R2 L' D F2 R' D' R' L U' D R D B2 R' U D2 Cross 
-    // L U B' U' R L' B R' F B' D R D' F' Anaconda
-    // F2 R' B' U R' L F' L F' B D' R B L2 Python
-    // R2 L F' R L' D R' U D' B U' R' D' Mamba
-
-    public float turnRate = 20.0f;
-    public string sequence = "R L F B R L F B R L F B"; // zigzag
-    public bool loop = false;
-
     public abstract class Animator
     {
         public Animator() { }
@@ -156,6 +145,15 @@ public class CubeController : MonoBehaviour {
     private Vector3 cNegZ = new Vector3();
     private Vector3 cZeroZ = new Vector3();
 
+    public class CubeInfo
+    {
+        public int id;
+        public Transform transform;
+        public Vector3 homePos;
+        public Vector3 homeRot;
+    }
+    private ArrayList _cubeInfos = new ArrayList();
+
 	void Start ()
     {
         SortCubeGroups();
@@ -172,46 +170,79 @@ public class CubeController : MonoBehaviour {
         cPosZ = ComputeCenter(posZ);
         cNegZ = ComputeCenter(negZ);
 
-        //string zigzag = "R L F B R L F B R L F B";
-        parseRecipe(sequence);
-
-        current = 0;
-        Animator rotator = rotations[0] as Animator;
-        rotator.Start();
+        int index = 0;
+        foreach (Transform t in transform)
+        {
+            CubeInfo info = new CubeInfo();
+            info.id = index++;
+            info.transform = t;
+            info.homePos = t.localPosition;
+            info.homeRot = t.localRotation.eulerAngles;
+            _cubeInfos.Add(info);
+        }
     }
 
-    void parseRecipe(string s)
+    public void ClearQueue()
     {
         rotations.Clear();
+        current = 0;
+    }
 
-        char[] delimiterChars = { ' ' };
-        string[] words = s.Split(delimiterChars);
-        for (int w = 0; w < words.Length; w++)
+    public void QueueCommand(string word, float turnRate = 30.0f)
+    {
+        Debug.Log(word);
+        // NOTE: May seem unintuitive but remember Unity's LHS
+        if (word == "F") rotations.Add(new Rotator(posX, cPosX, new Vector3(1, 0, 0), 90, turnRate));
+        else if (word == "F'") rotations.Add(new Rotator(posX, cPosX, new Vector3(-1, 0, 0), 90, turnRate));
+        else if (word == "F2") rotations.Add(new Rotator(posX, cPosX, new Vector3(1, 0, 0), 180, turnRate));
+        else if (word == "B") rotations.Add(new Rotator(negX, cNegX, new Vector3(-1, 0, 0), 90, turnRate));
+        else if (word == "B'") rotations.Add(new Rotator(negX, cNegX, new Vector3(1, 0, 0), 90, turnRate));
+        else if (word == "B2") rotations.Add(new Rotator(negX, cNegX, new Vector3(-1, 0, 0), 180, turnRate));
+        else if (word == "U") rotations.Add(new Rotator(posY, cPosY, new Vector3(0, 1, 0), 90, turnRate));
+        else if (word == "U'") rotations.Add(new Rotator(posY, cPosY, new Vector3(0, -1, 0), 90, turnRate));
+        else if (word == "U2") rotations.Add(new Rotator(posY, cPosY, new Vector3(0, 1, 0), 180, turnRate));
+        else if (word == "D") rotations.Add(new Rotator(negY, cNegY, new Vector3(0, -1, 0), 90, turnRate));
+        else if (word == "D'") rotations.Add(new Rotator(negY, cNegY, new Vector3(0, 1, 0), 90, turnRate));
+        else if (word == "D2") rotations.Add(new Rotator(negY, cNegY, new Vector3(0, -1, 0), 180, turnRate));
+        else if (word == "R") rotations.Add(new Rotator(posZ, cPosZ, new Vector3(0, 0, 1), 90, turnRate));
+        else if (word == "R'") rotations.Add(new Rotator(posZ, cPosZ, new Vector3(0, 0, -1), 90, turnRate));
+        else if (word == "R2") rotations.Add(new Rotator(posZ, cPosZ, new Vector3(0, 0, 1), 180, turnRate));
+        else if (word == "L") rotations.Add(new Rotator(negZ, cNegZ, new Vector3(0, 0, -1), 90, turnRate));
+        else if (word == "L'") rotations.Add(new Rotator(negZ, cNegZ, new Vector3(0, 0, 1), 90, turnRate));
+        else if (word == "L2") rotations.Add(new Rotator(negZ, cNegZ, new Vector3(0, 0, -1), 180, turnRate));
+        else Debug.Log("Unknown command passed to CubeController!");
+
+        if (rotations.Count == 1) // was previously empty, initialize rotations
         {
-            string word = words[w];
-            Debug.Log(word);
-            // NOTE: May seem unintuitive but remember Unity's LHS
-            if (word == "F")  rotations.Add(new Rotator(posX, cPosX, new Vector3( 1, 0, 0),  90, turnRate));
-            if (word == "F'") rotations.Add(new Rotator(posX, cPosX, new Vector3(-1, 0, 0),  90, turnRate));
-            if (word == "F2") rotations.Add(new Rotator(posX, cPosX, new Vector3( 1, 0, 0), 180, turnRate));
-            if (word == "B")  rotations.Add(new Rotator(negX, cNegX, new Vector3(-1, 0, 0),  90, turnRate));
-            if (word == "B'") rotations.Add(new Rotator(negX, cNegX, new Vector3( 1, 0, 0),  90, turnRate));
-            if (word == "B2") rotations.Add(new Rotator(negX, cNegX, new Vector3(-1, 0, 0), 180, turnRate));
-            if (word == "U")  rotations.Add(new Rotator(posY, cPosY, new Vector3( 0, 1, 0),  90, turnRate));
-            if (word == "U'") rotations.Add(new Rotator(posY, cPosY, new Vector3( 0,-1, 0),  90, turnRate));
-            if (word == "U2") rotations.Add(new Rotator(posY, cPosY, new Vector3( 0, 1, 0), 180, turnRate));
-            if (word == "D")  rotations.Add(new Rotator(negY, cNegY, new Vector3( 0,-1, 0),  90, turnRate));
-            if (word == "D'") rotations.Add(new Rotator(negY, cNegY, new Vector3( 0, 1, 0),  90, turnRate));
-            if (word == "D2") rotations.Add(new Rotator(negY, cNegY, new Vector3( 0,-1, 0), 180, turnRate));
-            if (word == "R")  rotations.Add(new Rotator(posZ, cPosZ, new Vector3( 0, 0, 1),  90, turnRate));
-            if (word == "R'") rotations.Add(new Rotator(posZ, cPosZ, new Vector3( 0, 0,-1),  90, turnRate));
-            if (word == "R2") rotations.Add(new Rotator(posZ, cPosZ, new Vector3( 0, 0, 1), 180, turnRate));
-            if (word == "L")  rotations.Add(new Rotator(negZ, cNegZ, new Vector3( 0, 0,-1),  90, turnRate));
-            if (word == "L'") rotations.Add(new Rotator(negZ, cNegZ, new Vector3( 0, 0, 1),  90, turnRate));
-            if (word == "L2") rotations.Add(new Rotator(negZ, cNegZ, new Vector3( 0, 0,-1), 180, turnRate));
+            Animator rotator = rotations[0] as Animator;
+            rotator.Start();
+            current = 0;
         }
+    }
 
-        rotations.Add(new Spiner(transform, Vector3.up, 100.0f));
+    public void QueueSpiner(float turnRate)
+    {
+        rotations.Add(new Spiner(transform, Vector3.up, turnRate));
+    }
+
+    public int GetNumCubes()
+    {
+        return _cubeInfos.Count;
+    }
+
+    public CubeInfo GetCubeInfo(int index)
+    {
+        return _cubeInfos[index] as CubeInfo;
+    }
+
+    public CubeInfo FindCube(Vector3 homePos)
+    {
+        foreach (CubeInfo info in _cubeInfos)
+        {
+            // ok, equality should be perfect
+            if (info.homePos == homePos) return info;
+        }
+        return null;
     }
 
     void SortCubeGroups()
@@ -265,7 +296,7 @@ public class CubeController : MonoBehaviour {
             ave += t.localPosition;
         }
         ave /= transforms.Count;
-        Debug.Log(ave);
+        //Debug.Log(ave);
         return ave;
     }
 
@@ -279,15 +310,21 @@ public class CubeController : MonoBehaviour {
 
     void Update ()
     {
+        if (current >= rotations.Count) return;
+        
         Animator rotator = rotations[current] as Animator;
         rotator.Update();
         if (rotator.IsDone())
         {
             SortCubeGroups();
 
-            current = (current + 1) % rotations.Count;
-            rotator = rotations[current] as Animator;
-            rotator.Start();
+            //current = (current + 1) % rotations.Count;
+            current = current + 1;
+            if (current < rotations.Count)
+            {
+                rotator = rotations[current] as Animator;
+                rotator.Start();
+            }
         }
 	}
 }
