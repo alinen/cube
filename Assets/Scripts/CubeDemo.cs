@@ -33,20 +33,16 @@ public class CubeDemo : MonoBehaviour {
             string word = words[w];
             _controller.QueueCommand(word, turnRate);
         }
-
-        //_controller.QueueSpiner(100.0f);
-
     }
 
     // Update is called once per frame
-    void Update () {
-
+    void Update ()
+    {
         if (!_initialized)
         {
             _controller = gameObject.GetComponent<CubeController>();
             ParseRecipe(sequence);
             _initialized = true;
         }
-	
 	}
 }
