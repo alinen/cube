@@ -128,8 +128,23 @@ public class CubePlanner : MonoBehaviour {
         }
     };
 
-    void Start() {
+    class TaskSolver
+    {
+        CubeController _controller = null;
+        public TaskSolver(CubeController controller)
+        {
+            _controller = controller;
+        }
 
+        public bool Criteria()
+        {
+            return false;
+        }
+ 
+    };
+
+    void Start()
+    {
 	}
 	
     void CacheCubeState(CubeController controller)
@@ -173,7 +188,18 @@ public class CubePlanner : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             CubeController controller = gameObject.GetComponent<CubeController>();
-            SolveFirstRow(controller);
+            CacheCubeState(controller);
+            Search(_scrap);
+
+            /*
+            ArrayList list;
+            Vector3 center;
+            Vector3 axis;
+            float amount;
+            TranslateMove("D'", out list, out center, out axis, out amount);
+            turn(list, center, axis, amount); // un-apply move
+            turn(list, center, axis, -amount); // un-apply move
+            */
         }
 	}
 
@@ -188,41 +214,12 @@ public class CubePlanner : MonoBehaviour {
         return zeroCount == 2;
     }
 
-    void SolveFirstRow(CubeController controller)
+    void TranslateMove(string word, out ArrayList list, out Vector3 center, out Vector3 axis, out float amount)
     {
-        _idList = new ArrayList();
-        for (int i = 0; i < 2; i++)
-        {
-            CacheCubeState(controller);
-
-            CubeController.CubeInfo info = controller.GetCubeInfo(i);
-            if (IsMiddleCube(info)) continue;
-
-            _idList.Add(info.id);
-
-            SearchNode end = new SearchNode(_idList); // move one cube, one move
-            for (int k = 0; k <= i; k++)
-            {
-                CubeController.CubeInfo infok = controller.GetCubeInfo(k);
-                end.SetCubeState(infok.id, infok.homePos, infok.homeRot);
-            }
-
-            SearchNode start = new SearchNode(_idList);
-            start.SaveState(_scrap);
-    
-            Debug.Log("START " + start);
-            Debug.Log("END " + end);
-
-            Search(start, end);
-        }
-    }
-
-    SearchNode ApplyMove(SearchNode node, string word)
-    {
-        ArrayList list = new ArrayList();
-        Vector3 center = new Vector3();
-        Vector3 axis = new Vector3();
-        float amount = 0.0f;
+        list = new ArrayList();
+        center = new Vector3();
+        axis = new Vector3();
+        amount = 0.0f;
 
         if (word == "F") { list = posX; center = cPosX; axis = new Vector3(1, 0, 0); amount = 90; }
         else if (word == "F'") { list = posX; center = cPosX; axis = new Vector3(-1, 0, 0); amount = 90; }
@@ -243,87 +240,14 @@ public class CubePlanner : MonoBehaviour {
         else if (word == "L'") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, 1); amount = 90; }
         else if (word == "L2") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 180; }
         else Debug.Log("Unknown command passed to ApplyMove!");
-
-        turn(list, center, axis, amount); // apply move
-        SearchNode nextState = new SearchNode(_idList); // cache state change
-        nextState.SaveState(_scrap);
-        nextState.parent = node;
-        nextState.move = word;
-        nextState.score = ScoreScrap();
-        turn(list, center, axis, -amount); // un-apply move
-        return nextState;
-   }
-
-   void Search(SearchNode start, SearchNode end)
-   {
-        if (start.IsEqual(end))
-        {
-            Debug.Log("Search: No work to do!");
-            return;
-        }
-
-        Queue queue = new Queue();
-        queue.Enqueue(start);
-
-        ArrayList visited = new ArrayList();
-        int bestScore = 0;
-        SearchNode bestNode = null;
-        // TODO: Keep accurate state info and score results to improve quality
-        for (int depth = 0; depth < 100 && bestNode == null; depth++)
-        {
-            Debug.Log("Depth " + depth);
-            SearchNode current = queue.Dequeue() as SearchNode;
-            visited.Add(current);
-
-            current.LoadState(_scrap);
-
-            foreach (string move in _moves)
-            {
-                SearchNode next = ApplyMove(current, move);
-                if (next.IsEqual(end))
-                {
-                    if (next.score > bestScore)
-                    {
-                        bestScore = next.score;
-                        bestNode = next;
-                        Debug.Log(depth+" NEXT " + " "+next.score+" "+next);
-                    }
-                }
-
-                /*if (!Contains(visited, next)) */queue.Enqueue(next);
-            }
-        }
-
-        if (bestNode != null)
-        {
-            ComputePath(bestNode);
-            Debug.Log("Search done");
-        }
-        else Debug.Log("No sequence found!");
     }
 
-    int ScoreScrap()
+    void ComputePath(ArrayList path)
     {
-        int score = 0;
-        CubeController controller = gameObject.GetComponent<CubeController>();
-        for (int i = 0; i < controller.GetNumCubes(); i++)
+        string s = "";
+        for (int i = 0; i < path.Count; i++)
         {
-            CubeController.CubeInfo info = controller.GetCubeInfo(i);
-            if ((info.homePos - (_scrap[i] as Transform).localPosition).magnitude < 0.001f) score++;
-            if ((info.homeRot - (_scrap[i] as Transform).localRotation.eulerAngles).magnitude < 0.001f) score++;
-        }
-
-        return score;
-    }
-
-    void ComputePath(SearchNode end)
-    {
-        SearchNode node = end;
-        string s = node.move;
-        while (node.parent != null)
-        {
-            node = node.parent;
-            s = node.move + " " + s;
+            s += path[i] + " ";
         }
         Debug.Log("FOUND " + s);
 
@@ -401,8 +325,102 @@ public class CubePlanner : MonoBehaviour {
         {
             Quaternion q = Quaternion.AngleAxis(amount, axis) * t.localRotation;
             t.RotateAround(center, axis, amount);
-            //t.localRotation = q;
+            t.localRotation = q;
         }
         SortCubeGroups();
    }
+
+    public ArrayList Search(ArrayList world)
+    {
+        ArrayList steps = new ArrayList();
+        /*
+        string[] level1 = {"L", "L'", "L2",
+                               "R", "R'", "R2",
+                               "F", "F'", "F2",
+                               "B", "B'", "B2" };
+        string[] level2 = { "U", "U'", "U2" };
+        steps.Add(level1);
+        steps.Add(level2);
+        steps.Add(level1);
+        steps.Add(level2);*/
+        string[] level1 = {"L", "L'", "L2",
+                               "R", "R'", "R2",
+                               "F", "F'", "F2",
+                               "B", "B'", "B2" };
+        steps.Add(level1);
+
+        CubeController controller = gameObject.GetComponent<CubeController>();
+        CubeController.CubeInfo info = controller.FindCube(new Vector3(1.25f, 1.25f, 0));
+        ArrayList constraints = new ArrayList();
+        constraints.Add(info.id);
+
+        ArrayList path = new ArrayList();
+        int s = Search(world, constraints, steps, 0, ref path);
+        Debug.Log("Found path: " + s);
+        ComputePath(path);
+        return path;
+    }
+
+    public int Search(ArrayList worldState, ArrayList constraints, ArrayList steps, int stepNum, ref ArrayList path)
+    {
+        int score = ScoreState(worldState, constraints);
+        ArrayList best = new ArrayList(path);
+
+        if (stepNum >= steps.Count)
+        {
+            Debug.Log("  score " + score+" "+path[0]);
+            return score;
+        }
+
+        string[] turns = (string[])steps[stepNum];
+        for (int i = 0; i < turns.Length; i++)
+        {
+            ArrayList list;
+            Vector3 center;
+            Vector3 axis;
+            float amount;
+
+            TranslateMove(turns[i], out list, out center, out axis, out amount);
+            path.Add(turns[i]);
+
+            turn(list, center, axis, amount); // un-apply move
+            int tmp = Search(worldState, constraints, steps, stepNum + 1, ref path);
+            if (tmp > score)
+            {
+                score = tmp;
+                best = new ArrayList(path);
+            }
+            turn(list, center, axis, -amount); // un-apply move
+            path.RemoveAt(path.Count - 1);
+        }
+        path = new ArrayList(best);
+        return score;
+    }
+
+    public int ScoreState(ArrayList worldState, ArrayList constraints)
+    {
+        CubeController controller = gameObject.GetComponent<CubeController > ();
+
+        bool requirements = true;
+        for (int i = 0; i < constraints.Count && requirements; i++)
+        {
+            CubeController.CubeInfo info = controller.GetCubeInfo((int) constraints[i]);
+            Transform t = worldState[info.id] as Transform;
+            if ((info.homePos - t.localPosition).magnitude > 0.001f) requirements = false;
+            if ((info.homeRot - t.localRotation.eulerAngles).magnitude > 0.001f) requirements = false; 
+        }
+
+
+        if (!requirements) return 0;
+
+        int score = 0;
+        for (int i = 0; i < controller.GetNumCubes(); i++)
+        {
+            CubeController.CubeInfo info = controller.GetCubeInfo(i);
+            if ((info.homePos - (worldState[i] as Transform).localPosition).magnitude < 0.001f) score++;
+            if ((info.homeRot - (worldState[i] as Transform).localRotation.eulerAngles).magnitude < 0.001f) score++;
+        }
+
+        return score;
+    }
 }
