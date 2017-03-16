@@ -7,7 +7,7 @@ public class CubePlanner : MonoBehaviour {
     private ArrayList _scrap = new ArrayList();
     private CubeStateManager _cube = new CubeStateManager();
     private CubeInfo _cubies = new CubeInfo();
-    private CubeTaskSolver _solver = new CubeTaskSolver();
+    private CubeTaskSolver _solver = new TopMiddleSolver();
 
     void Start()
     {
