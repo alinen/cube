@@ -4,6 +4,8 @@ using System.Collections;
 public class CubePlanner : MonoBehaviour {
 
     public GameObject scrap = null; // root of shadow cube who'se state mirrors the real cube; used for planning
+    public string startState = "F' D";
+
     private ArrayList _shadowCube = new ArrayList();
     private CubeStateManager _cube = new CubeStateManager();
     private CubeInfo _cubies = new CubeInfo();
@@ -38,6 +40,14 @@ public class CubePlanner : MonoBehaviour {
         _cube.init(scrap.transform);
         _solver.init(_cubies, _cube, _shadowCube);
 
+        char[] delimiterChars = { ' ' };
+        string[] words = startState.Split(delimiterChars);
+        for (int w = 0; w < words.Length; w++)
+        {
+            string word = words[w];
+            _cube.turn(word);
+        }
+
         CubeTask task = new CubeTask(SolveTopMiddle);
         _tasks.Add(task);
     }
@@ -63,15 +73,9 @@ public class CubePlanner : MonoBehaviour {
         ArrayList path = new ArrayList();
         SolveTask(ref path);
 
-        AnimatePath(path); // for visuals, changes display cube over many frames
+        //AnimatePath(path); // for visuals, changes display cube over many frames
         // apply state changes and get ready for next iteration
         ExecutePath(path); // changes planning cube immediately
-
-        // error checking
-        if (path.Count == 0)
-        {
-            Debug.LogError("Empty path returned");
-        }
     }
 
     void SolveTask(ref ArrayList path)
@@ -120,6 +124,18 @@ public class CubePlanner : MonoBehaviour {
 
     bool SolveTopMiddle_CaseTop(CubeInfo.Cubie cubie, ref ArrayList path)
     {
+        ArrayList steps = new ArrayList();
+        string[] level0 = { "U", "U'", "U2", "" };
+        string[] level1 = {"L", "L'", 
+                           "R", "R'", 
+                           "F", "F'", 
+                           "B", "B'"};
+        steps.Add(level0);
+        steps.Add(level1);
+        steps.Add(level0);
+
+        _solved.Add(cubie);
+        path = _solver.Search(_solved, steps);
         return _solved.Count < 4;
     }
 
@@ -147,6 +163,9 @@ public class CubePlanner : MonoBehaviour {
 
     void AnimatePath(ArrayList path)
     {
+        CubeDemo demo = gameObject.GetComponent<CubeDemo>();
+        if (demo == null) return; // not animating
+
         string s = "";
         for (int i = 0; i < path.Count; i++)
         {
@@ -155,7 +174,6 @@ public class CubePlanner : MonoBehaviour {
         }
         Debug.Log("FOUND " + s);
 
-        CubeDemo demo = gameObject.GetComponent<CubeDemo>();
         demo.ParseRecipe(s);
     }
 
