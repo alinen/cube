@@ -34,7 +34,6 @@ public class CubeStateManager
     public void init(Transform root)
     {
         _root = root;
-
         SortCubeGroups();
 
         cZeroX = ComputeCenter(zeroX);
@@ -57,26 +56,39 @@ public class CubeStateManager
         axis = new Vector3();
         amount = 0.0f;
 
-        if (word == "F") { list = posX; center = cPosX; axis = new Vector3(1, 0, 0); amount = 90; }
-        else if (word == "F'") { list = posX; center = cPosX; axis = new Vector3(-1, 0, 0); amount = 90; }
-        else if (word == "F2") { list = posX; center = cPosX; axis = new Vector3(1, 0, 0); amount = 180; }
-        else if (word == "B") { list = negX; center = cNegX; axis = new Vector3(-1, 0, 0); amount = 90; }
-        else if (word == "B'") { list = negX; center = cNegX; axis = new Vector3(1, 0, 0); amount = 90; }
-        else if (word == "B2") { list = negX; center = cNegX; axis = new Vector3(-1, 0, 0); amount = 180; }
-        else if (word == "U") { list = posY; center = cPosY; axis = new Vector3(0, 1, 0); amount = 90; }
-        else if (word == "U'") { list = posY; center = cPosY; axis = new Vector3(0, -1, 0); amount = 90; }
-        else if (word == "U2") { list = posY; center = cPosY; axis = new Vector3(0, 1, 0); amount = 180; }
-        else if (word == "D") { list = negY; center = cNegY; axis = new Vector3(0, -1, 0); amount = 90; }
-        else if (word == "D'") { list = negY; center = cNegY; axis = new Vector3(0, 1, 0); amount = 90; }
-        else if (word == "D2") { list = negY; center = cNegY; axis = new Vector3(0, -1, 0); amount = 180; }
-        else if (word == "R") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, 1); amount = 90; }
-        else if (word == "R'") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, -1); amount = 90; }
-        else if (word == "R2") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, 1); amount = 180; }
-        else if (word == "L") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 90; }
-        else if (word == "L'") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, 1); amount = 90; }
-        else if (word == "L2") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 180; }
+        if (word == "F") { list = posX; center = cPosX; axis = new Vector3(1, 0, 0); amount = 90; Test(posX, 0, 1.25f); }
+        else if (word == "F'") { list = posX; center = cPosX; axis = new Vector3(-1, 0, 0); amount = 90; Test(posX, 0, 1.25f); }
+        else if (word == "F2") { list = posX; center = cPosX; axis = new Vector3(1, 0, 0); amount = 180; Test(posX, 0, 1.25f); }
+        else if (word == "B") { list = negX; center = cNegX; axis = new Vector3(-1, 0, 0); amount = 90; Test(negX, 0, -1.25f); }
+        else if (word == "B'") { list = negX; center = cNegX; axis = new Vector3(1, 0, 0); amount = 90; Test(negX, 0, -1.25f); }
+        else if (word == "B2") { list = negX; center = cNegX; axis = new Vector3(-1, 0, 0); amount = 180; Test(negX, 0, -1.25f); }
+        else if (word == "U") { list = posY; center = cPosY; axis = new Vector3(0, 1, 0); amount = 90; Test(posY, 1, 1.25f); }
+        else if (word == "U'") { list = posY; center = cPosY; axis = new Vector3(0, -1, 0); amount = 90; Test(posY, 1, 1.25f); }
+        else if (word == "U2") { list = posY; center = cPosY; axis = new Vector3(0, 1, 0); amount = 180; Test(posY, 1, 1.25f); }
+        else if (word == "D") { list = negY; center = cNegY; axis = new Vector3(0, -1, 0); amount = 90; Test(negY, 1, -1.25f); }
+        else if (word == "D'") { list = negY; center = cNegY; axis = new Vector3(0, 1, 0); amount = 90; Test(negY, 1, -1.25f); }
+        else if (word == "D2") { list = negY; center = cNegY; axis = new Vector3(0, -1, 0); amount = 180; Test(negY, 1, -1.25f); }
+        else if (word == "R") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, 1); amount = 90; Test(posZ, 2, 1.25f); }
+        else if (word == "R'") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, -1); amount = 90; Test(posZ, 2, 1.25f); }
+        else if (word == "R2") { list = posZ; center = cPosZ; axis = new Vector3(0, 0, 1); amount = 180; Test(posZ, 2, 1.25f); }
+        else if (word == "L") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 90; Test(negZ, 2, -1.25f); }
+        else if (word == "L'") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, 1); amount = 90; Test(negZ, 2, -1.25f); }
+        else if (word == "L2") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 180; Test(negZ, 2, -1.25f); }
         else Debug.Log("Unknown command passed to CmdToTurn!");
     }
+
+    void Test(ArrayList list, int idx, float dpos)
+    { 
+        // Move to test class at some point
+        // https://blogs.unity3d.com/2014/05/21/unit-testing-part-1-unit-tests-by-the-book/
+        // https://blogs.unity3d.com/2014/06/03/unit-testing-part-2-unit-testing-monobehaviours/
+
+        foreach (Transform t in list)
+        {
+            Debug.Assert(Mathf.Abs(t.position[idx] - dpos) < 0.001f);
+        }
+    }
+
 
     public void SortCubeGroups()
     {

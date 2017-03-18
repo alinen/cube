@@ -3,8 +3,8 @@ using System.Collections;
 
 public class CubePlanner : MonoBehaviour {
 
-    public GameObject scrap = null; // hack for creating space transforms
-    private ArrayList _scrap = new ArrayList();
+    public GameObject scrap = null; // root of shadow cube who'se state mirrors the real cube; used for planning
+    private ArrayList _shadowCube = new ArrayList();
     private CubeStateManager _cube = new CubeStateManager();
     private CubeInfo _cubies = new CubeInfo();
     private CubeTaskSolver _solver = new TopMiddleSolver();
@@ -21,35 +21,24 @@ public class CubePlanner : MonoBehaviour {
             CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
             obj.transform.localPosition = info.transform.localPosition;
             obj.transform.localRotation = info.transform.localRotation;
-            _scrap.Add(obj.transform);
+            _shadowCube.Add(obj.transform);
         }
 
-        foreach (Transform t in _scrap)
+        foreach (Transform t in _shadowCube)
         {
             t.parent = scrap.transform;
         }
 
         _cube.init(scrap.transform);
-        _solver.init(_cubies, _cube);
+        _solver.init(_cubies, _cube, _shadowCube);
     }
 
-    void CopyCubeState()
-    {
-        for (int i = 0; i < _scrap.Count; i++)
-        {
-            Transform t = _scrap[i] as Transform;
-            CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
-            t.localPosition = info.transform.localPosition;
-            t.localRotation = info.transform.localRotation;
-        }
-    }
 
     void Update ()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CopyCubeState();
-            ArrayList path = _solver.Search(_scrap);
+            ArrayList path = _solver.Search();
             AnimatePath(path);
         }
 	}
