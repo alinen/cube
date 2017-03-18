@@ -21,7 +21,7 @@ public class CubeTaskSolver
         ArrayList path = new ArrayList();
         ArrayList best = new ArrayList();
         int s = Search(constraints, steps, 0, ref path, ref best);
-        Debug.Log("Found path with score " + s);
+        //Debug.Log("Found path with score " + s);
         return best;
     }
 
@@ -62,9 +62,9 @@ public class CubeTaskSolver
                 {
                     if (s == "") score += 10;
                 }
-                string spath = "";
-                foreach (string s in path) spath += s + " ";
-                Debug.Log("SCORE " + score + " " + spath + " " + path.Count);
+                //string spath = "";
+                //foreach (string s in path) spath += s + " ";
+                //Debug.Log("SCORE " + score + " " + spath + " " + path.Count);
             }
             bestPath = new ArrayList(path);
             return score;

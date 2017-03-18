@@ -39,6 +39,15 @@ public class CubeInfo
         }
 	}
 
+    public void Reset()
+    {
+        foreach (Cubie c in _cubeInfos)
+        {
+            c.transform.localPosition = c.homePos;
+            c.transform.localEulerAngles = c.homeRot;
+        }
+    }
+
     public int GetNumCubes()
     {
         return _cubeInfos.Count;

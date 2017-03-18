@@ -47,20 +47,37 @@ public class CubePlanner : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            UpdateCubeState(); // only want to do this once in the beginning
+            Test1();
+            //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Solve();
+            StepTask();
         }
 	}
 
-    void Solve()
+    void StepTask()
+    {
+        ArrayList path = new ArrayList();
+        SolveTask(ref path);
+
+        AnimatePath(path); // for visuals, changes display cube over many frames
+        // apply state changes and get ready for next iteration
+        ExecutePath(path); // changes planning cube immediately
+
+        // error checking
+        if (path.Count == 0)
+        {
+            Debug.LogError("Empty path returned");
+        }
+    }
+
+    void SolveTask(ref ArrayList path)
     {
         CubeTask task = _tasks[_currentTask] as CubeTask;
-        bool finished = task.Solve();
+        bool finished = task.Solve(ref path);
         if (finished && _currentTask+1 < _tasks.Count)
         {
             _currentTask++;
@@ -68,7 +85,7 @@ public class CubePlanner : MonoBehaviour {
         }
     }
 
-    bool SolveTopMiddle()
+    bool SolveTopMiddle(ref ArrayList path)
     {
         CubeInfo.Cubie cubie = null;
         ArrayList topMiddleCubes = _cubies.AnalyzeTopMiddle(ref cubie, _solved);
@@ -89,24 +106,24 @@ public class CubePlanner : MonoBehaviour {
 
         if (cubie.level == CubeInfo.TOP)
         {
-            return SolveTopMiddle_CaseTop(cubie);
+            return SolveTopMiddle_CaseTop(cubie, ref path);
         }
         else if (cubie.level == CubeInfo.MID)
         {
-            return SolveTopMiddle_CaseMiddle(cubie);
+            return SolveTopMiddle_CaseMiddle(cubie, ref path);
         }
         else
         {
-            return SolveTopMiddle_CaseBottom(cubie);
+            return SolveTopMiddle_CaseBottom(cubie, ref path);
         }
     }
 
-    bool SolveTopMiddle_CaseTop(CubeInfo.Cubie cubie)
+    bool SolveTopMiddle_CaseTop(CubeInfo.Cubie cubie, ref ArrayList path)
     {
         return _solved.Count < 4;
     }
 
-    bool SolveTopMiddle_CaseMiddle(CubeInfo.Cubie cubie)
+    bool SolveTopMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref ArrayList path)
     { 
         ArrayList steps = new ArrayList();
         string[] level0 = { "U", "U'", "U2", "" };
@@ -119,21 +136,11 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(level0);
 
         _solved.Add(cubie);
-        ArrayList path = _solver.Search(_solved, steps);
-
-        AnimatePath(path); // for visuals, changes display cube over many frames
-        // apply state changes and get ready for next iteration
-        ExecutePath(path); // changes planning cube immediately
-        
-        // error checking
-        if (path.Count == 0)
-        {
-            Debug.LogError("Empty path returned");
-        }
+        path = _solver.Search(_solved, steps);
         return _solved.Count < 4;
     }
 
-    bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie)
+    bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
     {
         return _solved.Count < 4;
     }
@@ -171,5 +178,41 @@ public class CubePlanner : MonoBehaviour {
             t.localRotation = infot.localRotation;
         }
         _cube.SortCubeGroups();
+    }
+
+    string PathToString(ArrayList path)
+    {
+        string ss = "";
+        for (int i = 0; i < path.Count; i++)
+        {
+            ss += " " + path[i];
+        }
+        ss = ss.Trim();
+        return ss;
+    }
+
+    void Test1()
+    {
+        _cubies.Reset();
+        _cube.turn("F'");
+        _cube.turn("D");
+
+        CubeInfo.Cubie cubie = null;
+        ArrayList list = _cubies.FindTopMiddle();
+        foreach (CubeInfo.Cubie c in list)
+        {
+            if (_cubies.MiddleRow(c))
+            {
+                cubie = c;
+                break;
+            }
+        }
+
+        ArrayList path = new ArrayList();
+        SolveTopMiddle_CaseMiddle(cubie, ref path);
+
+        string s = PathToString(path);
+        Debug.Log("Run Test1: " + s);
+        Debug.Assert(s == "F");
     }
 }
