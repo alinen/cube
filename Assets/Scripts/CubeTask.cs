@@ -3,20 +3,16 @@ using System.Collections;
 
 public class CubeTask
 {
-    public CubeTask()
-    {
-    }
-}
+    public delegate bool SolveFn();
 
-public class SolveTopMiddle : CubeTask
-{
-    public SolveTopMiddle()
+    private SolveFn _solvefn;
+    public CubeTask(SolveFn sfn)
     {
-
+        _solvefn = sfn;
     }
 
-    public bool Solved()
+    public bool Solve()
     {
-        return false;
+        return _solvefn();
     }
 }

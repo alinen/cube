@@ -49,8 +49,6 @@ public class CubeTaskSolver
         return score;
     }
 
-
-
     private int Search(ArrayList constraints, ArrayList steps, int stepNum, ref ArrayList path, ref ArrayList bestPath)
     {
         int score = ScoreState(constraints);
