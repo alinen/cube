@@ -83,7 +83,7 @@ public class CubeController : MonoBehaviour {
             _axis = axis;
             _amount = amount;
             _rate = rate;
-            Debug.Log("Create " + axis + " " + amount);
+            //Debug.Log("Create " + axis + " " + amount);
         }
 
         public override void Start()
@@ -141,7 +141,7 @@ public class CubeController : MonoBehaviour {
     {
         if (word == "") return;
 
-        Debug.Log(word);
+        //Debug.Log(word);
 
         ArrayList list;
         Vector3 center;

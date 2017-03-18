@@ -49,6 +49,17 @@ public class CubeStateManager
         cNegZ = ComputeCenter(negZ);
     }
 
+    public void turn(string word)
+    {
+        ArrayList list;
+        Vector3 center;
+        Vector3 axis;
+        float amount;
+
+        CmdToTurn(word, out list, out center, out axis, out amount);
+        if (list.Count > 0) turn(list, center, axis, amount);
+    }
+
     public void CmdToTurn(string word, out ArrayList list, out Vector3 center, out Vector3 axis, out float amount)
     {
         list = new ArrayList();
