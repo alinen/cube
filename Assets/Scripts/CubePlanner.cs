@@ -72,21 +72,16 @@ public class CubePlanner : MonoBehaviour {
             }
 
             ArrayList steps = new ArrayList();
-            /*
-            string[] level1 = {"L", "L'", "L2",
-                                   "R", "R'", "R2",
-                                   "F", "F'", "F2",
-                                   "B", "B'", "B2" };
-            string[] level2 = { "U", "U'", "U2" };
+            string[] level1 = {"L", "L'", 
+                               "R", "R'", 
+                               "F", "F'", 
+                               "B", "B'", "" };
+            string[] level0 = { "U", "U'", "U2", "" };
+            steps.Add(level0);
             steps.Add(level1);
-            steps.Add(level2);
+            steps.Add(level0);
             steps.Add(level1);
-            steps.Add(level2);*/
-            string[] level1 = { "L", "L'", "L2",
-                                "R", "R'", "R2",
-                                "F", "F'", "F2",
-                                "B", "B'", "B2" };
-            steps.Add(level1);
+            //steps.Add(level0);
 
             ArrayList constraints = solved;
             constraints.Add(cubie);
@@ -107,7 +102,7 @@ public class CubePlanner : MonoBehaviour {
             }
 
             count++;
-            if (count > 4)
+            if (count > 2)
             {
                 Debug.LogError("SEARCH steps exceeded");
                 break; // failsafe: error in logic!!
@@ -128,6 +123,7 @@ public class CubePlanner : MonoBehaviour {
         string s = "";
         for (int i = 0; i < path.Count; i++)
         {
+            if ((string) path[i] == "") continue;
             s += path[i] + " ";
         }
         Debug.Log("FOUND " + s);
@@ -140,6 +136,7 @@ public class CubePlanner : MonoBehaviour {
     {
         for (int i = 0; i < path.Count; i++)
         {
+            if ((string) path[i] == "") continue;
             _cube.turn((string) path[i]);
         }
     }

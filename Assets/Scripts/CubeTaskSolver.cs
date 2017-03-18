@@ -19,9 +19,10 @@ public class CubeTaskSolver
     public ArrayList Search(ArrayList constraints, ArrayList steps)
     {
         ArrayList path = new ArrayList();
-        int s = Search(constraints, steps, 0, ref path);
+        ArrayList best = new ArrayList();
+        int s = Search(constraints, steps, 0, ref path, ref best);
         Debug.Log("Found path with score " + s);
-        return path;
+        return best;
     }
 
     private int ScoreState(ArrayList constraints)
@@ -50,41 +51,52 @@ public class CubeTaskSolver
 
 
 
-    private int Search(ArrayList constraints, ArrayList steps, int stepNum, ref ArrayList path)
+    private int Search(ArrayList constraints, ArrayList steps, int stepNum, ref ArrayList path, ref ArrayList bestPath)
     {
         int score = ScoreState(constraints);
-        ArrayList best = new ArrayList(path);
-
         if (stepNum >= steps.Count)
         {
             //Debug.Log("  score " + score + " " + path[0]);
+            if (score > 0)
+            {
+                // bonus for empty moves (e.g. fewer moves is better)
+                foreach (string s in path)
+                {
+                    if (s == "") score += 10;
+                }
+                string spath = "";
+                foreach (string s in path) spath += s + " ";
+                Debug.Log("SCORE " + score + " " + spath + " " + path.Count);
+            }
+            bestPath = new ArrayList(path);
             return score;
         }
 
         string[] turns = (string[])steps[stepNum];
         for (int i = 0; i < turns.Length; i++)
         {
-            ArrayList list;
-            Vector3 center;
-            Vector3 axis;
-            float amount;
+            ArrayList list = new ArrayList();
+            Vector3 center = new Vector3(0,0,0);
+            Vector3 axis = new Vector3(0,0,0);
+            float amount = 0.0f;
 
-            _cube.CmdToTurn(turns[i], out list, out center, out axis, out amount);
+            if (turns[i] != "")
+            {
+                _cube.CmdToTurn(turns[i], out list, out center, out axis, out amount);
+                _cube.turn(list, center, axis, amount); // un-apply move
+            }
             path.Add(turns[i]);
-
-            _cube.turn(list, center, axis, amount); // un-apply move
-            int tmp = Search(constraints, steps, stepNum + 1, ref path);
+            ArrayList bestChild = new ArrayList();
+            int tmp = Search(constraints, steps, stepNum + 1, ref path, ref bestChild);
             if (tmp > score)
             {
                 score = tmp;
-                best = new ArrayList(path);
+                bestPath = new ArrayList(bestChild);
             }
-            _cube.turn(list, center, axis, -amount); // un-apply move
+            if (turns[i] != "") _cube.turn(list, center, axis, -amount); // un-apply move
             path.RemoveAt(path.Count - 1);
         }
-        path = new ArrayList(best);
         return score;
     }
-
 };
 

@@ -128,7 +128,20 @@ public class CubeStateManager
             Check(child, 2, 0.0f, zeroZ);
             Check(child, 2, 1.25f, posZ);
             Check(child, 2, -1.25f, negZ);
+
+            CheckAngle(child, 0);
+            CheckAngle(child, 1);
+            CheckAngle(child, 2);
         }
+    }
+
+    void CheckAngle(Transform t, int idx)
+    {
+        Vector3 euler = t.localEulerAngles;
+        if (Mathf.Abs(euler[idx] - 90) < 10) euler[idx] = 90;
+        if (Mathf.Abs(euler[idx] - 270) < 10) euler[idx] = 270;
+        if (Mathf.Abs(euler[idx] - 0) < 10) euler[idx] = 0;
+        if (Mathf.Abs(euler[idx] - 180) < 10) euler[idx] = 180;
     }
 
     void Check(Transform t, int idx, float desired, ArrayList list)
