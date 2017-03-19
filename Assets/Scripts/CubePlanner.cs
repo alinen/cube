@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class CubePlanner : MonoBehaviour {
 
@@ -40,12 +41,32 @@ public class CubePlanner : MonoBehaviour {
         _cube.init(scrap.transform);
         _solver.init(_cubies, _cube, _shadowCube);
 
-        char[] delimiterChars = { ' ' };
-        string[] words = startState.Split(delimiterChars);
-        for (int w = 0; w < words.Length; w++)
+        if (startState == "Random")
         {
-            string word = words[w];
-            _cube.turn(word);
+            string[] choices = { "F", "F", "F2",
+                                 "B", "B", "B2",
+                                 "R", "R", "R2",
+                                 "L", "L", "L2",
+                                 "U", "U", "U2",
+                                 "D", "D", "D2"};
+            int maxMoves = 10;
+            System.Random random = new System.Random();
+            for (int i = 0; i < maxMoves; i++)
+            {
+                int idx = random.Next(0, choices.Length);
+                string cmd = choices[idx];
+                _cube.turn(cmd);
+            }
+        }
+        else
+        {
+            char[] delimiterChars = { ' ' };
+            string[] words = startState.Split(delimiterChars);
+            for (int w = 0; w < words.Length; w++)
+            {
+                string word = words[w];
+                _cube.turn(word);
+            }
         }
 
         CubeTask task = new CubeTask(SolveTopMiddle);
@@ -75,6 +96,7 @@ public class CubePlanner : MonoBehaviour {
 
         //AnimatePath(path); // for visuals, changes display cube over many frames
         // apply state changes and get ready for next iteration
+        Debug.Log("PATH " + PathToString(path));
         ExecutePath(path); // changes planning cube immediately
     }
 
@@ -129,7 +151,9 @@ public class CubePlanner : MonoBehaviour {
         string[] level1 = {"L", "L'", 
                            "R", "R'", 
                            "F", "F'", 
-                           "B", "B'"};
+                           "B", "B'", ""};
+        steps.Add(level0);
+        steps.Add(level1);
         steps.Add(level0);
         steps.Add(level1);
         steps.Add(level0);
@@ -158,6 +182,35 @@ public class CubePlanner : MonoBehaviour {
 
     bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
     {
+        ArrayList steps = new ArrayList();
+        string[] level0 = { "D", "D'", "D2", "" };
+        string[] level10 = { "L2", "R2", "F2", "B2" }; 
+        steps.Add(level0);
+        steps.Add(level10);
+
+        _solved.Add(cubie);
+        path = _solver.Search(_solved, steps);
+
+        if (path.Count == 0) // try other case
+        {
+            string[] level11 = {"L", "L'",
+                            "R", "R'",
+                            "F", "F'",
+                            "B", "B'"};
+            string[] level2 = { "U", "U'", "U2", "" };
+
+            string[] level3 = {"L", "L'",
+                            "R", "R'",
+                            "F", "F'",
+                            "B", "B'"};
+            steps.Clear();
+            steps.Add(level0);
+            steps.Add(level11);
+            steps.Add(level2);
+            steps.Add(level3);
+            path = _solver.Search(_solved, steps);
+        }
+
         return _solved.Count < 4;
     }
 
@@ -232,5 +285,28 @@ public class CubePlanner : MonoBehaviour {
         string s = PathToString(path);
         Debug.Log("Run Test1: " + s);
         Debug.Assert(s == "F");
+    }
+    void Test2()
+    {
+        _cubies.Reset();
+        _cube.turn("F2");
+
+        CubeInfo.Cubie cubie = null;
+        ArrayList list = _cubies.FindTopMiddle();
+        foreach (CubeInfo.Cubie c in list)
+        {
+            if (_cubies.BottomRow(c))
+            {
+                cubie = c;
+                break;
+            }
+        }
+
+        ArrayList path = new ArrayList();
+        SolveTopMiddle_CaseBottom(cubie, ref path);
+
+        string s = PathToString(path);
+        Debug.Log("Run Test1: " + s);
+        Debug.Assert(s == "F2");
     }
 }
