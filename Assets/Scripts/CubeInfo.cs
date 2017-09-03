@@ -52,13 +52,17 @@ public class CubeInfo
     {
         foreach (Cubie c in _cubeInfos)
         {
-            if (!CorrectOri(c) || !CorrectPos(c))
+            if (!IsSolved(c))
             {
                 return false;
             }
         }
         return true;
+    }
 
+    public bool IsSolved(Cubie c)
+    {
+        return (CorrectOri(c) || CorrectPos(c));
     }
 
     public int GetNumCubes()

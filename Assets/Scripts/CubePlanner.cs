@@ -78,7 +78,8 @@ public class CubePlanner : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Test("R D R'");
+            Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
+
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
         }
@@ -426,7 +427,7 @@ public class CubePlanner : MonoBehaviour {
         {
             _cube.turn(word);
         }
-        Debug.Assert(_cubies.IsSolved());
+        Debug.Assert(_cubies.IsSolved(cubie));
         //Debug.Assert(s == "D' R D R");
     }
 

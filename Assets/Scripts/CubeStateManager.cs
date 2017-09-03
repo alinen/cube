@@ -116,7 +116,7 @@ public class CubeStateManager
         else if (word == "L") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 90; Test(negZ, 2, -1.25f); }
         else if (word == "L'") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, 1); amount = 90; Test(negZ, 2, -1.25f); }
         else if (word == "L2") { list = negZ; center = cNegZ; axis = new Vector3(0, 0, -1); amount = 180; Test(negZ, 2, -1.25f); }
-        else Debug.Log("Unknown command passed to CmdToTurn!");
+        else Debug.Log("Unknown command passed to CmdToTurn! "+word);
     }
 
     void Test(ArrayList list, int idx, float dpos)
