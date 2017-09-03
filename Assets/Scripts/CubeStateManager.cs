@@ -5,26 +5,32 @@ public class CubeStateManager
 {
     private Transform _root = null;
 
+    // left to right vertical stacks
     private ArrayList posX = new ArrayList();
     private ArrayList negX = new ArrayList();
     private ArrayList zeroX = new ArrayList();
 
+    // pivots for rotating X stacks 
     private Vector3 cPosX = new Vector3();
     private Vector3 cNegX = new Vector3();
     private Vector3 cZeroX = new Vector3();
 
+    // top to bottom horizontal stacks
     private ArrayList posY = new ArrayList();
     private ArrayList negY = new ArrayList();
     private ArrayList zeroY = new ArrayList();
 
+    // pivots for rotating Y stacks 
     private Vector3 cPosY = new Vector3();
     private Vector3 cNegY = new Vector3();
     private Vector3 cZeroY = new Vector3();
 
+    // back to front vertical stacks
     private ArrayList posZ = new ArrayList();
     private ArrayList negZ = new ArrayList();
     private ArrayList zeroZ = new ArrayList();
 
+    // pivots for rotating Z stacks 
     private Vector3 cPosZ = new Vector3();
     private Vector3 cNegZ = new Vector3();
     private Vector3 cZeroZ = new Vector3();
@@ -58,6 +64,31 @@ public class CubeStateManager
 
         CmdToTurn(word, out list, out center, out axis, out amount);
         if (list.Count > 0) turn(list, center, axis, amount);
+    }
+
+    public string Reverse(string word)
+    {
+        string turn = "";
+        if (word == "F") turn = "F'";
+        else if (word == "F'") turn = "F";
+        else if (word == "F2") turn = "F2";
+        else if (word == "B") turn = "B'";
+        else if (word == "B'") turn = "B";
+        else if (word == "B2") turn = "B2";
+        else if (word == "U") turn = "U'";
+        else if (word == "U'") turn = "U";
+        else if (word == "U2") turn = "U2";
+        else if (word == "D") turn = "D'";
+        else if (word == "D'") turn = "D";
+        else if (word == "D2") turn = "D2";
+        else if (word == "R") turn = "R'";
+        else if (word == "R'") turn = "R";
+        else if (word == "R2") turn = "R2";
+        else if (word == "L") turn = "L'";
+        else if (word == "L'") turn = "L";
+        else if (word == "L2") turn = "L2";
+        else Debug.Log("Unknown command passed to Reverse!");
+        return turn;
     }
 
     public void CmdToTurn(string word, out ArrayList list, out Vector3 center, out Vector3 axis, out float amount)

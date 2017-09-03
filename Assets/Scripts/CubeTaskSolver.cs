@@ -78,12 +78,14 @@ public class CubeTaskSolver
             Vector3 axis = new Vector3(0,0,0);
             float amount = 0.0f;
 
-            if (turns[i] != "")
+            string turn = turns[i];
+            if (turn != "")
             {
-                _cube.CmdToTurn(turns[i], out list, out center, out axis, out amount);
+                if (turn == "X") turn = _cube.Reverse((string) path[path.Count - 2]);
+                _cube.CmdToTurn(turn, out list, out center, out axis, out amount);
                 _cube.turn(list, center, axis, amount); // un-apply move
             }
-            path.Add(turns[i]);
+            path.Add(turn);
             ArrayList bestChild = new ArrayList();
             int tmp = Search(constraints, steps, stepNum + 1, ref path, ref bestChild);
             if (tmp > score)
@@ -91,7 +93,7 @@ public class CubeTaskSolver
                 score = tmp;
                 bestPath = new ArrayList(bestChild);
             }
-            if (turns[i] != "") _cube.turn(list, center, axis, -amount); // un-apply move
+            if (turn != "") _cube.turn(list, center, axis, -amount); // un-apply move
             path.RemoveAt(path.Count - 1);
         }
         return score;

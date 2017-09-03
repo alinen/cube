@@ -48,6 +48,19 @@ public class CubeInfo
         }
     }
 
+    public bool IsSolved()
+    {
+        foreach (Cubie c in _cubeInfos)
+        {
+            if (!CorrectOri(c) || !CorrectPos(c))
+            {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
     public int GetNumCubes()
     {
         return _cubeInfos.Count;
@@ -161,6 +174,19 @@ public class CubeInfo
         return Mathf.Abs(c.transform.localPosition.y + 1.25f) < 0.0001f;
     }
 
+    public bool FacingDown(Cubie c)
+    {
+        Vector3 localUp = c.transform.TransformDirection(Vector3.up);
+        Debug.Log(localUp);
+        return Mathf.Abs(localUp.y + 1) < 0.0001f;
+    }
+
+    public bool FacingUp(Cubie c)
+    {
+        Vector3 localUp = c.transform.TransformDirection(Vector3.up);
+        return Mathf.Abs(localUp.y - 1) < 0.0001f;
+    }
+
     // Check for out of place top middle cubes and pick one to solve
     // Ignore the cubes in constraints, because we know these are solved already
     public ArrayList AnalyzeTopMiddle(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
@@ -187,6 +213,33 @@ public class CubeInfo
             }
         }
         return topMiddle;
+    }
+
+    // Check for out of place top middle cubes and pick one to solve
+    // Ignore the cubes in constraints, because we know these are solved already
+    public ArrayList AnalyzeTopCorner(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
+    {
+        int bestScore = 0;
+        cubeToFix = null;
+        ArrayList topCorner = FindTopCorners();
+        foreach (Cubie c in topCorner)
+        {
+            c.score = 0;
+            if (Contains(constraints, c)) continue;
+
+            if (CorrectPos(c)) { c.score += 2; c.state = c.state | POS; }
+            if (CorrectOri(c)) { c.score += 2; c.state = c.state | ORI; }
+
+            if (TopRow(c)) { c.score += 2; c.level = TOP; }
+            else { c.score += 1; c.level = BOT; }
+
+            if (c.score > bestScore)
+            {
+                bestScore = c.score;
+                cubeToFix = c;
+            }
+        }
+        return topCorner;
     }
 
 }
