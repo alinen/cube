@@ -2,12 +2,10 @@
 using System.Collections;
 using System;
 
-public class CubePlanner : MonoBehaviour {
-
-    public GameObject scrap = null; // root of shadow cube who'se state mirrors the real cube; used for planning
+public class CubePlanner : MonoBehaviour
+{
     public string startState = "F' D";
 
-    private ArrayList _shadowCube = new ArrayList();
     private CubeStateManager _cube = new CubeStateManager();
     private CubeInfo _cubies = new CubeInfo();
     private CubeTaskSolver _solver = new CubeTaskSolver();
@@ -18,28 +16,9 @@ public class CubePlanner : MonoBehaviour {
     
     void Start()
     {
-        CubeStateManager tmp = new CubeStateManager();
-        tmp.init(scrap.transform); // hack: use init of statemgr to initialize exact cube positions of scrap
-
-        _cubies.init(scrap.transform); 
-        for (int i = 0; i < _cubies.GetNumCubes(); i++)
-        {
-            //GameObject obj = GameObject.Instantiate(scrap);
-            GameObject obj = scrap.transform.GetChild(i).gameObject;
-
-            CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
-            obj.transform.localPosition = info.transform.localPosition;
-            obj.transform.localRotation = info.transform.localRotation;
-            _shadowCube.Add(obj.transform);
-        }
-
-        //foreach (Transform t in _shadowCube)
-        //{
-            //t.parent = scrap.transform;
-        //}
-
-        _cube.init(scrap.transform);
-        _solver.init(_cubies, _cube, _shadowCube);
+        _cube.init(transform);
+        _cubies.init(transform); 
+        _solver.init(_cubies, _cube);
 
         if (startState == "Random")
         {
@@ -56,6 +35,7 @@ public class CubePlanner : MonoBehaviour {
                 int idx = random.Next(0, choices.Length);
                 string cmd = choices[idx];
                 _cube.turn(cmd);
+                Debug.Log(cmd);
             }
         }
         else
@@ -161,8 +141,8 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(down);
         steps.Add(reverse); // reverse level0
 
-        _solved.Add(cubie);
-        path = _solver.Search(_solved, steps);
+        path = _solver.Search(cubie, _solved, steps);
+        if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 8;
     }
 
@@ -191,8 +171,8 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(down);
         steps.Add(reverse);
 
-        _solved.Add(cubie);
-        path = _solver.Search(_solved, steps);
+        path = _solver.Search(cubie, _solved, steps);
+        if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 8;
     }
 
@@ -243,8 +223,8 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(level1);
         steps.Add(level0);
 
-        _solved.Add(cubie);
-        path = _solver.Search(_solved, steps);
+        path = _solver.Search(cubie, _solved, steps);
+        if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 4;
     }
 
@@ -260,8 +240,8 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(level1);
         steps.Add(level0);
 
-        _solved.Add(cubie);
-        path = _solver.Search(_solved, steps);
+        path = _solver.Search(cubie, _solved, steps);
+        if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 4;
     }
 
@@ -273,8 +253,7 @@ public class CubePlanner : MonoBehaviour {
         steps.Add(level0);
         steps.Add(level10);
 
-        _solved.Add(cubie);
-        path = _solver.Search(_solved, steps);
+        path = _solver.Search(cubie, _solved, steps);
 
         if (path.Count == 0) // try other case
         {
@@ -293,9 +272,10 @@ public class CubePlanner : MonoBehaviour {
             steps.Add(level11);
             steps.Add(level2);
             steps.Add(level3);
-            path = _solver.Search(_solved, steps);
+            path = _solver.Search(cubie, _solved, steps);
         }
 
+        if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 4;
     }
 
@@ -322,18 +302,6 @@ public class CubePlanner : MonoBehaviour {
             if ((string) path[i] == "") continue;
             _cube.turn((string) path[i]);
         }
-    }
-
-    void UpdateCubeState()
-    {
-        for (int i = 0; i < _shadowCube.Count; i++)
-        {
-            Transform t = _shadowCube[i] as Transform;
-            Transform infot = gameObject.transform.GetChild(i);
-            t.localPosition = infot.localPosition;
-            t.localRotation = infot.localRotation;
-        }
-        _cube.SortCubeGroups();
     }
 
     string PathToString(ArrayList path)
