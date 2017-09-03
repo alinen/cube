@@ -248,6 +248,7 @@ public class CubePlanner : MonoBehaviour
     bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
     {
         ArrayList steps = new ArrayList();
+
         string[] level0 = { "D", "D'", "D2", "" };
         string[] level10 = { "L2", "R2", "F2", "B2" }; 
         steps.Add(level0);
@@ -273,6 +274,24 @@ public class CubePlanner : MonoBehaviour
             steps.Add(level2);
             steps.Add(level3);
             path = _solver.Search(cubie, _solved, steps);
+        }
+
+        if (path.Count == 0) // try other case
+        {
+            string[] level11 = {"L", "L'",
+                            "R", "R'",
+                            "F", "F'",
+                            "B", "B'"};
+            string[] level3 = {"L", "L'",
+                            "R", "R'",
+                            "F", "F'",
+                            "B", "B'"};
+            steps.Clear();
+            steps.Add(level11);
+            steps.Add(level3);
+            steps.Add(level3);
+            path = _solver.Search(cubie, _solved, steps);
+
         }
 
         if (path.Count != 0) _solved.Add(cubie);

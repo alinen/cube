@@ -169,10 +169,12 @@ public class CubeStateManager
     void CheckAngle(Transform t, int idx)
     {
         Vector3 euler = t.localEulerAngles;
-        if (Mathf.Abs(euler[idx] - 90) < 10) euler[idx] = 90;
-        if (Mathf.Abs(euler[idx] - 270) < 10) euler[idx] = 270;
+        float sign = Mathf.Sign(euler[idx]);
+        if (Mathf.Abs(euler[idx] - 90) < 10) euler[idx] = sign * 90;
+        if (Mathf.Abs(euler[idx] - 270) < 10) euler[idx] = sign * 270;
         if (Mathf.Abs(euler[idx] - 0) < 10) euler[idx] = 0;
-        if (Mathf.Abs(euler[idx] - 180) < 10) euler[idx] = 180;
+        if (Mathf.Abs(euler[idx] - 180) < 10) euler[idx] = sign * 180;
+        t.localEulerAngles = euler;
     }
 
     void Check(Transform t, int idx, float desired, ArrayList list)
