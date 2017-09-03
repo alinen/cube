@@ -117,10 +117,36 @@ public class CubePlanner : MonoBehaviour
         {
             return SolveMiddleMiddle_CaseBottom(cubie, ref path);
         }
-        //else
-        //{
-        //  SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
-        //}
+        else
+        {
+            Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
+          SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
+        }
+        return false;
+    }
+
+    bool SolveMiddleMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref ArrayList path)
+    {
+        if (_cubies.FrontRight(cubie))
+        {
+            string[] seqn = { "F", "D'", "F'", "D'", "R'", "D", "R"};
+            path.AddRange(seqn);
+        }
+        else if (_cubies.RightBack(cubie))
+        {
+            string[] seqn = { "R", "D'", "R'", "D'", "B'", "D", "B" };
+            path.AddRange(seqn);
+        }
+        else if (_cubies.BackLeft(cubie))
+        {
+            string[] seqn = { "B", "D'", "B'", "D'", "L'", "D", "L" };
+            path.AddRange(seqn);
+        }
+        else if (_cubies.LeftFront(cubie))
+        {
+            string[] seqn = { "L", "D'", "L'", "D'", "F'", "D", "F" };
+            path.AddRange(seqn);
+        }
         return false;
     }
 

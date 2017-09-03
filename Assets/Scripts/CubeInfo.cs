@@ -178,6 +178,30 @@ public class CubeInfo
         return Mathf.Abs(c.transform.localPosition.y + 1.25f) < 0.0001f;
     }
 
+    public bool FrontRight(Cubie c)
+    {
+        return Mathf.Abs(c.transform.localPosition.x - 1.25f) < 0.0001f &&
+               Mathf.Abs(c.transform.localPosition.z - 1.25f) < 0.0001f;
+    }
+
+    public bool RightBack(Cubie c)
+    {
+        return Mathf.Abs(c.transform.localPosition.x + 1.25f) < 0.0001f &&
+               Mathf.Abs(c.transform.localPosition.z - 1.25f) < 0.0001f;
+    }
+
+    public bool BackLeft(Cubie c)
+    {
+        return Mathf.Abs(c.transform.localPosition.x + 1.25f) < 0.0001f &&
+               Mathf.Abs(c.transform.localPosition.z + 1.25f) < 0.0001f;
+    }
+
+    public bool LeftFront(Cubie c)
+    {
+        return Mathf.Abs(c.transform.localPosition.x - 1.25f) < 0.0001f &&
+               Mathf.Abs(c.transform.localPosition.z + 1.25f) < 0.0001f;
+    }
+
     public bool FacingDown(Cubie c)
     {
         Vector3 localUp = c.transform.TransformDirection(Vector3.up);
