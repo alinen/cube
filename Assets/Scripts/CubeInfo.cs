@@ -62,7 +62,7 @@ public class CubeInfo
 
     public bool IsSolved(Cubie c)
     {
-        return (CorrectOri(c) || CorrectPos(c));
+        return (CorrectOri(c) && CorrectPos(c));
     }
 
     public int GetNumCubes()
