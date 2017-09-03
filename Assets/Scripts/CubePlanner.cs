@@ -52,6 +52,8 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveTopMiddle));
         _tasks.Add(new CubeTask(SolveTopCorners));
         _tasks.Add(new CubeTask(SolveMiddleMiddles));
+        _tasks.Add(new CubeTask(SolveBottomCornerPositions));
+        //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
     }
 
 
@@ -59,7 +61,10 @@ public class CubePlanner : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
+            //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
+
+            // Test analyzing the bottom face of cubes
+            ArrayList bottomCornerCubes = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
@@ -93,6 +98,38 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
+    bool SolveBottomCornerPositions(ref ArrayList path)
+    {
+        /*
+        CubeInfo.Cubie cubie = null;
+        ArrayList middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
+        if (cubie == null) return true; // no work to do!
+
+        Debug.Log("FIX " + cubie.id);
+
+        // case 1: no work to do -> no work to do, return
+        // case 2: cube is in top row, but wrong pos or ori
+        // case 3: cube is in middle row
+        // case 4: cube is in bottom row
+
+        if (cubie.state == (CubeInfo.POS | CubeInfo.ORI))
+        {
+            _solved.Add(cubie);
+            return _solved.Count >= 8; // this hard-codes the order of steps (middle first => 4 cubes, corner next => 8 cubes)
+        }
+
+        if (cubie.level == CubeInfo.BOT)
+        {
+            return SolveMiddleMiddle_CaseBottom(cubie, ref path);
+        }
+        else
+        {
+            Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
+            return SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
+        }*/
+        return false;
+    }
+
     bool SolveMiddleMiddles(ref ArrayList path)
     {
         CubeInfo.Cubie cubie = null;
@@ -109,7 +146,6 @@ public class CubePlanner : MonoBehaviour
         if (cubie.state == (CubeInfo.POS | CubeInfo.ORI))
         {
             _solved.Add(cubie);
-            Debug.Log("NO WORK TO DO");
             return _solved.Count >= 8; // this hard-codes the order of steps (middle first => 4 cubes, corner next => 8 cubes)
         }
 
@@ -120,7 +156,7 @@ public class CubePlanner : MonoBehaviour
         else
         {
             Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
-          SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
+            return SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
         }
         return false;
     }
@@ -201,7 +237,6 @@ public class CubePlanner : MonoBehaviour
         if (cubie.state == (CubeInfo.POS | CubeInfo.ORI))
         {
             _solved.Add(cubie);
-            Debug.Log("NO WORK TO DO");
             return _solved.Count >= 8; // this hard-codes the order of steps (middle first => 4 cubes, corner next => 8 cubes)
         }
 

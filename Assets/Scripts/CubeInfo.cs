@@ -85,7 +85,7 @@ public class CubeInfo
         return null;
     }
 
-    public bool IsMiddleCube(int id)
+    public bool IsCenterCube(int id)
     {
         Cubie info = _cubeInfos[id] as Cubie;
 
@@ -107,7 +107,7 @@ public class CubeInfo
         {
             if (info.homePos.y == 1.25 && (info.homePos.x == 0 || info.homePos.z == 0))
             {
-                if (!IsMiddleCube(info.id))
+                if (!IsCenterCube(info.id))
                 {
                     //Debug.Log("TOP MIDDLE "+info.id);
                     result.Add(info);
@@ -130,6 +130,19 @@ public class CubeInfo
         return result;
     }
 
+    public ArrayList FindBottomCorners()
+    {
+        ArrayList result = new ArrayList();
+        foreach (Cubie info in _cubeInfos)
+        {
+            if (info.homePos.y == -1.25 && info.homePos.x != 0 && info.homePos.z != 0)
+            {
+                result.Add(info);
+            }
+        }
+        return result;
+    }
+
     public ArrayList FindMiddleMiddle()
     {
         ArrayList result = new ArrayList();
@@ -138,6 +151,25 @@ public class CubeInfo
             if (info.homePos.y == 0 && info.homePos.x != 0 && info.homePos.z != 0)
             {
                 result.Add(info);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList FindBottomMiddle()
+    {
+        // top is Y = 1.25
+        // middle is X or Z == 0
+        ArrayList result = new ArrayList();
+        foreach (Cubie info in _cubeInfos)
+        {
+            if (info.homePos.y == -1.25 && (info.homePos.x == 0 || info.homePos.z == 0))
+            {
+                if (!IsCenterCube(info.id))
+                {
+                    //Debug.Log("TOP MIDDLE "+info.id);
+                    result.Add(info);
+                }
             }
         }
         return result;
@@ -297,6 +329,40 @@ public class CubeInfo
             }
         }
         return topCorner;
+    }
+
+    public enum CornerCase
+    {
+        CORRECT_ORDER = 0,
+        ONE_CORRECT = 1,
+        TWO_CONSECUTIVE_CORRECT = 2,
+        TWO_NON_CONSECUTIVE_CORRECT = 3
+    };
+
+    public ArrayList AnalyzeBottomCorners(
+        ref ArrayList cubesToFix, ref CornerCase sitch, ArrayList constraints)
+    {
+        int bestScore = 0;
+        ArrayList bottomCorner = FindBottomCorners();
+        foreach (Cubie c in bottomCorner)
+        {
+            c.score = 0;
+            if (Contains(constraints, c)) continue;
+
+            if (CorrectPos(c)) { c.score += 2; c.state = c.state | POS; }
+            if (CorrectOri(c)) { c.score += 2; c.state = c.state | ORI; }
+
+            if (TopRow(c)) { c.score += 2; c.level = TOP; }
+            else { c.score += 1; c.level = BOT; }
+
+            if (c.score > bestScore)
+            {
+                bestScore = c.score;
+                cubeToFix = c;
+            }
+        }
+        return bottomCorner;
+
     }
 
 }
