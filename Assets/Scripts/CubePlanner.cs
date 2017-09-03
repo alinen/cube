@@ -267,31 +267,14 @@ public class CubePlanner : MonoBehaviour
             string[] level3 = {"L", "L'",
                             "R", "R'",
                             "F", "F'",
-                            "B", "B'"};
+                            "B", "B'", ""};
             steps.Clear();
             steps.Add(level0);
             steps.Add(level11);
             steps.Add(level2);
             steps.Add(level3);
-            path = _solver.Search(cubie, _solved, steps);
-        }
-
-        if (path.Count == 0) // try other case
-        {
-            string[] level11 = {"L", "L'",
-                            "R", "R'",
-                            "F", "F'",
-                            "B", "B'"};
-            string[] level3 = {"L", "L'",
-                            "R", "R'",
-                            "F", "F'",
-                            "B", "B'"};
-            steps.Clear();
-            steps.Add(level11);
-            steps.Add(level3);
             steps.Add(level3);
             path = _solver.Search(cubie, _solved, steps);
-
         }
 
         if (path.Count != 0) _solved.Add(cubie);
