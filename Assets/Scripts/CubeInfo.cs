@@ -193,6 +193,35 @@ public class CubeInfo
 
     // Check for out of place top middle cubes and pick one to solve
     // Ignore the cubes in constraints, because we know these are solved already
+    // Scoring assumes that top row is already solved
+    public ArrayList AnalyzeMiddleMiddle(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
+    {
+        int bestScore = 0;
+        cubeToFix = null;
+        ArrayList middleMiddle = FindMiddleMiddle();
+        foreach (Cubie c in middleMiddle)
+        {
+            c.score = 0;
+            if (Contains(constraints, c)) continue;
+
+            if (CorrectPos(c)) { c.score += 2; c.state = c.state | POS;  }
+            if (CorrectOri(c)) { c.score += 2; c.state = c.state | ORI; }
+
+            if (BottomRow(c)) { c.score += 2; c.level = BOT; }
+            else if (MiddleRow(c)) { c.score += 1; c.level = MID; }
+
+            if (c.score > bestScore )
+            {
+                bestScore = c.score;
+                cubeToFix = c;
+            }
+        }
+        return middleMiddle;
+    }
+
+
+    // Check for out of place top middle cubes and pick one to solve
+    // Ignore the cubes in constraints, because we know these are solved already
     public ArrayList AnalyzeTopMiddle(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
     {
         int bestScore = 0;

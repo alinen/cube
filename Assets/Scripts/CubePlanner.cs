@@ -51,6 +51,7 @@ public class CubePlanner : MonoBehaviour
 
         _tasks.Add(new CubeTask(SolveTopMiddle));
         _tasks.Add(new CubeTask(SolveTopCorners));
+        _tasks.Add(new CubeTask(SolveMiddleMiddles));
     }
 
 
@@ -90,6 +91,72 @@ public class CubePlanner : MonoBehaviour
         {
             _currentTask++;
         }
+    }
+
+    bool SolveMiddleMiddles(ref ArrayList path)
+    {
+        CubeInfo.Cubie cubie = null;
+        ArrayList middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
+        if (cubie == null) return true; // no work to do!
+
+        Debug.Log("FIX " + cubie.id);
+
+        // case 1: no work to do -> no work to do, return
+        // case 2: cube is in top row, but wrong pos or ori
+        // case 3: cube is in middle row
+        // case 4: cube is in bottom row
+
+        if (cubie.state == (CubeInfo.POS | CubeInfo.ORI))
+        {
+            _solved.Add(cubie);
+            Debug.Log("NO WORK TO DO");
+            return _solved.Count >= 8; // this hard-codes the order of steps (middle first => 4 cubes, corner next => 8 cubes)
+        }
+
+        if (cubie.level == CubeInfo.BOT)
+        {
+            return SolveMiddleMiddle_CaseBottom(cubie, ref path);
+        }
+        //else
+        //{
+        //  SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
+        //}
+        return false;
+    }
+
+    bool SolveMiddleMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
+    {
+        ArrayList steps = new ArrayList();
+        string[] down = { "D", "D'", "D2", "" };
+        string[] sequences = 
+        {
+            "D' L' D L D B D' B'",
+            "D' R' D R D F D' F'",
+            "D' B' D B D R D' R'",
+            "D' F' D F D L D' L'",
+            "D R D' R' D' B' D B",
+            "D F D' F' D' R' D R",
+            "D L D' L' D' F' D F",
+            "D B D' B' D' L' D L"
+        };
+
+        // ASN TODO: We know the sequence if we analyze the cube more closely
+        foreach (string seqn in sequences)
+        {
+            steps.Clear();
+            steps.Add(down);
+            string[] words = seqn.Split();
+            foreach (string word in words)
+            {
+                string[] tmp = { word };
+                steps.Add(tmp);
+            }
+            path = _solver.Search(cubie, _solved, steps);
+            if (path.Count > 0) break;
+        }
+
+        if (path.Count != 0) _solved.Add(cubie);
+        return _solved.Count >= 12;
     }
 
     bool SolveTopCorners(ref ArrayList path)
@@ -284,7 +351,11 @@ public class CubePlanner : MonoBehaviour
     void AnimatePath(ArrayList path)
     {
         CubeDemo demo = gameObject.GetComponent<CubeDemo>();
-        if (demo == null) return; // not animating
+        if (demo == null)
+        {
+            Debug.LogWarning("No CubeDemo component. Cannot animate!");
+            return; // not animating
+        }
 
         string s = "";
         for (int i = 0; i < path.Count; i++)
