@@ -65,7 +65,10 @@ public class CubePlanner : MonoBehaviour
             //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
 
             // Test analyzing the bottom face of cubes
-            //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
+            List<CubeInfo.Cubie> cubes = new List<CubeInfo.Cubie>();
+            CubeInfo.CornerCase sitch = CubeInfo.CornerCase.CORRECT_ORDER;
+            List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners(
+                ref cubes, ref sitch, _solved);
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube

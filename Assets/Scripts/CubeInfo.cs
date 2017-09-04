@@ -211,6 +211,31 @@ public class CubeInfo
         return Mathf.Abs(c.transform.localPosition.y + 1.25f) < 0.0001f;
     }
 
+
+    public bool HomeIsRightBack(Cubie c)
+    {
+        return Mathf.Abs(c.homePos.x + 1.25f) < 0.0001f &&
+               Mathf.Abs(c.homePos.z - 1.25f) < 0.0001f;
+    }
+
+    public bool HomeIsBackLeft(Cubie c)
+    {
+        return Mathf.Abs(c.homePos.x + 1.25f) < 0.0001f &&
+               Mathf.Abs(c.homePos.z + 1.25f) < 0.0001f;
+    }
+
+    public bool HomeIsLeftFront(Cubie c)
+    {
+        return Mathf.Abs(c.homePos.x - 1.25f) < 0.0001f &&
+               Mathf.Abs(c.homePos.z + 1.25f) < 0.0001f;
+    }
+
+    public bool HomeIsFrontRight(Cubie c)
+    {
+        return Mathf.Abs(c.homePos.x - 1.25f) < 0.0001f &&
+               Mathf.Abs(c.homePos.z - 1.25f) < 0.0001f;
+    }
+
     public bool FrontRight(Cubie c)
     {
         return Mathf.Abs(c.transform.localPosition.x - 1.25f) < 0.0001f &&
@@ -335,38 +360,189 @@ public class CubeInfo
     public enum CornerCase
     {
         CORRECT_ORDER = 0,
-        ONE_CORRECT = 1,
-        TWO_CONSECUTIVE_CORRECT = 2,
-        TWO_NON_CONSECUTIVE_CORRECT = 3
+        THREE_ROTATE_CC = 1,
+        THREE_ROTATE_C = 2,
+        SWAP_CONSECUTIVE = 3,
+        SWAP_NON_CONSECUTIVE = 4
     };
 
-    /*
+    bool CorrectCornerOrder(List<Cubie> order) // clockwise listing from RB
+    {
+        int RBidx = -1;
+        for (int i = 0; i < order.Count && RBidx == -1; i++)
+        {
+            if (HomeIsRightBack(order[i])) RBidx = i;
+        }
+
+        int BLidx = (RBidx + 1) % order.Count;
+        int LFidx = (RBidx + 2) % order.Count;
+        int FRidx = (RBidx + 3) % order.Count;
+
+        bool check1 = HomeIsBackLeft(order[BLidx]);
+        bool check2 = HomeIsLeftFront(order[LFidx]);
+        bool check3 = HomeIsFrontRight(order[FRidx]);
+
+        return check1 && check2 && check3;
+    }
+
     public List<Cubie> AnalyzeBottomCorners(
         ref List<Cubie> cubesToFix, ref CornerCase sitch, List<Cubie> constraints)
     {
-        int bestScore = 0;
         List<Cubie> bottomCorner = FindBottomCorners();
-        CubeInfo.Cubie RB = bottomCorner.
+        CubeInfo.Cubie RB = bottomCorner.Find(x => RightBack(x));
+        CubeInfo.Cubie BL = bottomCorner.Find(x => BackLeft(x));
+        CubeInfo.Cubie LF = bottomCorner.Find(x => LeftFront(x));
+        CubeInfo.Cubie FR = bottomCorner.Find(x => FrontRight(x));
+
+        List<Cubie> clockwise = new List<Cubie>(4);
+        clockwise.Add(RB);
+        clockwise.Add(BL);
+        clockwise.Add(LF);
+        clockwise.Add(FR);
         
-        foreach (Cubie c in bottomCorner)
+        //case 0 - correct order
+        if (CorrectCornerOrder(clockwise))
         {
-            c.score = 0;
-            if (Contains(constraints, c)) continue;
+            cubesToFix.Clear();
+            sitch = CornerCase.CORRECT_ORDER;
+            // a single D rotation will align the cubes
+            return bottomCorner;
+        }
 
-            if (CorrectPos(c)) { c.score += 2; c.state = c.state | POS; }
-            if (CorrectOri(c)) { c.score += 2; c.state = c.state | ORI; }
+        //case 4 - swap opposite
+        clockwise[0] = LF; // RB;
+        clockwise[1] = FR; // BL;
+        clockwise[2] = RB; // LF;
+        clockwise[3] = BL; // FR;
 
-            if (TopRow(c)) { c.score += 2; c.level = TOP; }
-            else { c.score += 1; c.level = BOT; }
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix = bottomCorner;
+            sitch = CornerCase.SWAP_NON_CONSECUTIVE;
+            return bottomCorner;
+        }
 
-            if (c.score > bestScore)
-            {
-                bestScore = c.score;
-                cubeToFix = c;
-            }
+        //case 3a - swap consecutive
+        clockwise[0] = BL; // RB;
+        clockwise[1] = RB; // BL;
+        clockwise[2] = FR; // LF;
+        clockwise[3] = LF; // FR;
+
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix = bottomCorner;
+            sitch = CornerCase.SWAP_CONSECUTIVE;
+            return bottomCorner;
+        }
+
+        //case 3b - swap consecutive
+        clockwise[0] = FR; // RB;
+        clockwise[1] = LF; // BL;
+        clockwise[2] = BL; // LF;
+        clockwise[3] = RB; // FR;
+
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix = bottomCorner;
+            sitch = CornerCase.SWAP_CONSECUTIVE;
+            return bottomCorner;
+        }
+
+        //case 2a - rotate 3 CC
+        clockwise[0] = RB; // RB;
+        clockwise[1] = LF; // BL;
+        clockwise[2] = FR; // LF;
+        clockwise[3] = BL; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(RB); // add the static one
+            sitch = CornerCase.THREE_ROTATE_CC;
+            return bottomCorner;
+        }
+
+        //case 2b - rotate 3 CC
+        clockwise[0] = LF; // RB;
+        clockwise[1] = BL; // BL;
+        clockwise[2] = FR; // LF;
+        clockwise[3] = RB; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(BL); // add the static one
+            sitch = CornerCase.THREE_ROTATE_CC;
+            return bottomCorner;
+        }
+
+        // case 2c - rotate CC
+        clockwise[0] = BL; // RB;
+        clockwise[1] = FR; // BL;
+        clockwise[2] = LF; // LF;
+        clockwise[3] = RB; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(LF); // add the static one
+            sitch = CornerCase.THREE_ROTATE_CC;
+            return bottomCorner;
+        }
+
+        // case 2d - rotate CC
+        clockwise[0] = BL; // RB;
+        clockwise[1] = LF; // BL;
+        clockwise[2] = RB; // LF;
+        clockwise[3] = FR; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(FR); // add the static one
+            sitch = CornerCase.THREE_ROTATE_CC;
+            return bottomCorner;
+        }
+
+        //case 3a - rotate 3 C
+        clockwise[0] = RB; // RB;
+        clockwise[1] = FR; // BL;
+        clockwise[2] = BL; // LF;
+        clockwise[3] = LF; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(RB); // add the static one
+            sitch = CornerCase.THREE_ROTATE_C;
+            return bottomCorner;
+        }
+
+        //case 3b - rotate 3 C
+        clockwise[0] = FR; // RB;
+        clockwise[1] = BL; // BL;
+        clockwise[2] = RB; // LF;
+        clockwise[3] = LF; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(BL); // add the static one
+            sitch = CornerCase.THREE_ROTATE_C;
+            return bottomCorner;
+        }
+
+        // case 3c - rotate C
+        clockwise[0] = FR; // RB;
+        clockwise[1] = RB; // BL;
+        clockwise[2] = LF; // LF;
+        clockwise[3] = BL; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(LF); // add the static one
+            sitch = CornerCase.THREE_ROTATE_C;
+            return bottomCorner;
+        }
+
+        // case 3d - rotate C
+        clockwise[0] = LF; // RB;
+        clockwise[1] = RB; // BL;
+        clockwise[2] = BL; // LF;
+        clockwise[3] = FR; // FR;
+        if (CorrectCornerOrder(clockwise))
+        {
+            cubesToFix.Add(FR); // add the static one
+            sitch = CornerCase.THREE_ROTATE_C;
+            return bottomCorner;
         }
         return bottomCorner;
-
-    }*/
-
+    }
 }
