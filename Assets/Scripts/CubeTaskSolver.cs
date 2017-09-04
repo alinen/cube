@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CubeTaskSolver
 {
@@ -14,16 +15,16 @@ public class CubeTaskSolver
         _cubies = cubies;
     }
 
-    public ArrayList Search(CubeInfo.Cubie c, ArrayList constraints, ArrayList steps)
+    public List<string> Search(CubeInfo.Cubie c, List<CubeInfo.Cubie> constraints, ArrayList steps)
     {
-        ArrayList path = new ArrayList();
-        ArrayList best = new ArrayList();
+        List<string> path = new List<string>();
+        List<string> best = new List<string>();
         int s = Search(c, constraints, steps, 0, ref path, ref best);
         //Debug.Log("Found path with score " + s);
         return best;
     }
 
-    private int ScoreState(CubeInfo.Cubie cubie, ArrayList constraints)
+    private int ScoreState(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
     {
         bool requirements = _cubies.IsSolved(cubie);
         for (int i = 0; i < constraints.Count && requirements; i++)
@@ -45,7 +46,8 @@ public class CubeTaskSolver
     }
 
     // Solve for cubie given the passed constraints
-    private int Search(CubeInfo.Cubie c, ArrayList constraints, ArrayList steps, int stepNum, ref ArrayList path, ref ArrayList bestPath)
+    private int Search(CubeInfo.Cubie c, List<CubeInfo.Cubie> constraints, 
+        ArrayList steps, int stepNum, ref List<string> path, ref List<string> bestPath)
     {
         int score = ScoreState(c, constraints);
         if (stepNum >= steps.Count)
@@ -62,14 +64,14 @@ public class CubeTaskSolver
                 //foreach (string s in path) spath += s + " ";
                 //Debug.Log("SCORE " + score + " " + spath + " " + path.Count);
             }
-            bestPath = new ArrayList(path);
+            bestPath = new List<string>(path);
             return score;
         }
 
         string[] turns = (string[])steps[stepNum];
         for (int i = 0; i < turns.Length; i++)
         {
-            ArrayList list = new ArrayList();
+            List<Transform> list = new List<Transform>();
             Vector3 center = new Vector3(0,0,0);
             Vector3 axis = new Vector3(0,0,0);
             float amount = 0.0f;
@@ -82,12 +84,12 @@ public class CubeTaskSolver
                 _cube.turn(list, center, axis, amount); // un-apply move
             }
             path.Add(turn);
-            ArrayList bestChild = new ArrayList();
+            List<string> bestChild = new List<string>();
             int tmp = Search(c, constraints, steps, stepNum + 1, ref path, ref bestChild);
             if (tmp > score)
             {
                 score = tmp;
-                bestPath = new ArrayList(bestChild);
+                bestPath = new List<string>(bestChild);
             }
             if (turn != "") _cube.turn(list, center, axis, -amount); // un-apply move
             path.RemoveAt(path.Count - 1);

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class CubePlanner : MonoBehaviour
@@ -10,9 +11,9 @@ public class CubePlanner : MonoBehaviour
     private CubeInfo _cubies = new CubeInfo();
     private CubeTaskSolver _solver = new CubeTaskSolver();
 
-    private ArrayList _tasks = new ArrayList();
     private int _currentTask = 0;
-    private ArrayList _solved = new ArrayList();
+    private List<CubeTask> _tasks = new List<CubeTask>();
+    private List<CubeInfo.Cubie> _solved = new List<CubeInfo.Cubie>();
     
     void Start()
     {
@@ -52,7 +53,7 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveTopMiddle));
         _tasks.Add(new CubeTask(SolveTopCorners));
         _tasks.Add(new CubeTask(SolveMiddleMiddles));
-        _tasks.Add(new CubeTask(SolveBottomCornerPositions));
+        //_tasks.Add(new CubeTask(SolveBottomCornerPositions));
         //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
     }
 
@@ -64,7 +65,7 @@ public class CubePlanner : MonoBehaviour
             //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
 
             // Test analyzing the bottom face of cubes
-            ArrayList bottomCornerCubes = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
+            //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
@@ -78,7 +79,7 @@ public class CubePlanner : MonoBehaviour
 
     void StepTask()
     {
-        ArrayList path = new ArrayList();
+        List<string> path = new List<string>();
         SolveTask(ref path);
 
         //AnimatePath(path); // for visuals, changes display cube over many frames
@@ -87,7 +88,7 @@ public class CubePlanner : MonoBehaviour
         ExecutePath(path); // changes planning cube immediately
     }
 
-    void SolveTask(ref ArrayList path)
+    void SolveTask(ref List<string> path)
     {
         Debug.Log("Solve task: " + _currentTask);
         CubeTask task = _tasks[_currentTask] as CubeTask;
@@ -98,9 +99,9 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
+        /*
     bool SolveBottomCornerPositions(ref ArrayList path)
     {
-        /*
         CubeInfo.Cubie cubie = null;
         ArrayList middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
@@ -126,14 +127,15 @@ public class CubePlanner : MonoBehaviour
         {
             Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
             return SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
-        }*/
+        }
         return false;
     }
+        */
 
-    bool SolveMiddleMiddles(ref ArrayList path)
+    bool SolveMiddleMiddles(ref List<string> path)
     {
         CubeInfo.Cubie cubie = null;
-        ArrayList middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
+        List<CubeInfo.Cubie> middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
 
         Debug.Log("FIX " + cubie.id);
@@ -158,10 +160,9 @@ public class CubePlanner : MonoBehaviour
             Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
             return SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
         }
-        return false;
     }
 
-    bool SolveMiddleMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveMiddleMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref List<string> path)
     {
         if (_cubies.FrontRight(cubie))
         {
@@ -186,7 +187,7 @@ public class CubePlanner : MonoBehaviour
         return false;
     }
 
-    bool SolveMiddleMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveMiddleMiddle_CaseBottom(CubeInfo.Cubie cubie, ref List<string> path)
     {
         ArrayList steps = new ArrayList();
         string[] down = { "D", "D'", "D2", "" };
@@ -221,10 +222,10 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 12;
     }
 
-    bool SolveTopCorners(ref ArrayList path)
+    bool SolveTopCorners(ref List<string> path)
     {
         CubeInfo.Cubie cubie = null;
-        ArrayList topCornerCubes = _cubies.AnalyzeTopCorner(ref cubie, _solved);
+        List<CubeInfo.Cubie> topCornerCubes = _cubies.AnalyzeTopCorner(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
 
         Debug.Log("FIX " + cubie.id);
@@ -250,7 +251,7 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
-    bool SolveTopCorner_CaseTop(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveTopCorner_CaseTop(CubeInfo.Cubie cubie, ref List<string> path)
     {
         ArrayList steps = new ArrayList();
         string[] sides = {"L", "L'",
@@ -274,7 +275,7 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 8;
     }
 
-    bool SolveTopCorner_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveTopCorner_CaseBottom(CubeInfo.Cubie cubie, ref List<string> path)
     {
         ArrayList steps = new ArrayList();
         string[] down = { "D", "D'", "D2", "" };
@@ -304,10 +305,10 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 8;
     }
 
-    bool SolveTopMiddle(ref ArrayList path)
+    bool SolveTopMiddle(ref List<string> path)
     {
         CubeInfo.Cubie cubie = null;
-        ArrayList topMiddleCubes = _cubies.AnalyzeTopMiddle(ref cubie, _solved);
+        List<CubeInfo.Cubie> topMiddleCubes = _cubies.AnalyzeTopMiddle(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
 
         Debug.Log("FIX " + cubie.id);
@@ -337,7 +338,7 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
-    bool SolveTopMiddle_CaseTop(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveTopMiddle_CaseTop(CubeInfo.Cubie cubie, ref List<string> path)
     {
         ArrayList steps = new ArrayList();
         string[] level0 = { "U", "U'", "U2", "" };
@@ -356,7 +357,7 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 4;
     }
 
-    bool SolveTopMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveTopMiddle_CaseMiddle(CubeInfo.Cubie cubie, ref List<string> path)
     { 
         ArrayList steps = new ArrayList();
         string[] level0 = { "U", "U'", "U2", "" };
@@ -373,7 +374,7 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 4;
     }
 
-    bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie, ref ArrayList path)
+    bool SolveTopMiddle_CaseBottom(CubeInfo.Cubie cubie, ref List<string> path)
     {
         ArrayList steps = new ArrayList();
 
@@ -409,7 +410,7 @@ public class CubePlanner : MonoBehaviour
         return _solved.Count >= 4;
     }
 
-    void AnimatePath(ArrayList path)
+    void AnimatePath(List<string> path)
     {
         CubeDemo demo = gameObject.GetComponent<CubeDemo>();
         if (demo == null)
@@ -429,7 +430,7 @@ public class CubePlanner : MonoBehaviour
         demo.ParseRecipe(s);
     }
 
-    void ExecutePath(ArrayList path)
+    void ExecutePath(List<string> path)
     {
         for (int i = 0; i < path.Count; i++)
         {
@@ -438,7 +439,7 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
-    string PathToString(ArrayList path)
+    string PathToString(List<string> path)
     {
         string ss = "";
         for (int i = 0; i < path.Count; i++)
@@ -456,7 +457,7 @@ public class CubePlanner : MonoBehaviour
         _cube.turn("D");
 
         CubeInfo.Cubie cubie = null;
-        ArrayList list = _cubies.FindTopMiddle();
+        List<CubeInfo.Cubie> list = _cubies.FindTopMiddle();
         foreach (CubeInfo.Cubie c in list)
         {
             if (_cubies.MiddleRow(c))
@@ -466,7 +467,7 @@ public class CubePlanner : MonoBehaviour
             }
         }
 
-        ArrayList path = new ArrayList();
+        List<string> path = new List<string>();
         SolveTopMiddle_CaseMiddle(cubie, ref path);
 
         string s = PathToString(path);
@@ -479,7 +480,7 @@ public class CubePlanner : MonoBehaviour
         _cube.turn("F2");
 
         CubeInfo.Cubie cubie = null;
-        ArrayList list = _cubies.FindTopMiddle();
+        List<CubeInfo.Cubie> list = _cubies.FindTopMiddle();
         foreach (CubeInfo.Cubie c in list)
         {
             if (_cubies.BottomRow(c))
@@ -489,7 +490,7 @@ public class CubePlanner : MonoBehaviour
             }
         }
 
-        ArrayList path = new ArrayList();
+        List<string> path = new List<string>();
         SolveTopMiddle_CaseBottom(cubie, ref path);
 
         string s = PathToString(path);
@@ -508,7 +509,7 @@ public class CubePlanner : MonoBehaviour
         }
 
         CubeInfo.Cubie cubie = null;
-        ArrayList list = _cubies.FindTopCorners();
+        List<CubeInfo.Cubie> list = _cubies.FindTopCorners();
         foreach (CubeInfo.Cubie c in list)
         {
             if (_cubies.BottomRow(c))
@@ -519,7 +520,7 @@ public class CubePlanner : MonoBehaviour
         }
         Debug.Assert(cubie != null);
 
-        ArrayList path = new ArrayList();
+        List<string> path = new List<string>();
         SolveTopCorner_CaseBottom(cubie, ref path);
 
         string s = PathToString(path);

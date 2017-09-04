@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class CubeStateManager 
 {
     private Transform _root = null;
 
     // left to right vertical stacks
-    private ArrayList posX = new ArrayList();
-    private ArrayList negX = new ArrayList();
-    private ArrayList zeroX = new ArrayList();
+    private List<Transform> posX = new List<Transform>();
+    private List<Transform> negX = new List<Transform>();
+    private List<Transform> zeroX = new List<Transform>();
 
     // pivots for rotating X stacks 
     private Vector3 cPosX = new Vector3();
@@ -16,9 +16,9 @@ public class CubeStateManager
     private Vector3 cZeroX = new Vector3();
 
     // top to bottom horizontal stacks
-    private ArrayList posY = new ArrayList();
-    private ArrayList negY = new ArrayList();
-    private ArrayList zeroY = new ArrayList();
+    private List<Transform> posY = new List<Transform>();
+    private List<Transform> negY = new List<Transform>();
+    private List<Transform> zeroY = new List<Transform>();
 
     // pivots for rotating Y stacks 
     private Vector3 cPosY = new Vector3();
@@ -26,9 +26,9 @@ public class CubeStateManager
     private Vector3 cZeroY = new Vector3();
 
     // back to front vertical stacks
-    private ArrayList posZ = new ArrayList();
-    private ArrayList negZ = new ArrayList();
-    private ArrayList zeroZ = new ArrayList();
+    private List<Transform> posZ = new List<Transform>();
+    private List<Transform> negZ = new List<Transform>();
+    private List<Transform> zeroZ = new List<Transform>();
 
     // pivots for rotating Z stacks 
     private Vector3 cPosZ = new Vector3();
@@ -57,7 +57,7 @@ public class CubeStateManager
 
     public void turn(string word)
     {
-        ArrayList list;
+        List<Transform> list;
         Vector3 center;
         Vector3 axis;
         float amount;
@@ -91,9 +91,9 @@ public class CubeStateManager
         return turn;
     }
 
-    public void CmdToTurn(string word, out ArrayList list, out Vector3 center, out Vector3 axis, out float amount)
+    public void CmdToTurn(string word, out List<Transform> list, out Vector3 center, out Vector3 axis, out float amount)
     {
-        list = new ArrayList();
+        list = new List<Transform>();
         center = new Vector3();
         axis = new Vector3();
         amount = 0.0f;
@@ -119,7 +119,7 @@ public class CubeStateManager
         else Debug.Log("Unknown command passed to CmdToTurn! "+word);
     }
 
-    void Test(ArrayList list, int idx, float dpos)
+    void Test(List<Transform> list, int idx, float dpos)
     { 
         // Move to test class at some point
         // https://blogs.unity3d.com/2014/05/21/unit-testing-part-1-unit-tests-by-the-book/
@@ -177,7 +177,7 @@ public class CubeStateManager
         t.localEulerAngles = euler;
     }
 
-    void Check(Transform t, int idx, float desired, ArrayList list)
+    void Check(Transform t, int idx, float desired, List<Transform> list)
     {
         Vector3 pos = t.localPosition;
         if (Mathf.Abs(pos[idx] - desired) < 0.25f)
@@ -189,7 +189,7 @@ public class CubeStateManager
         }
     }
 
-    Vector3 ComputeCenter(ArrayList transforms)
+    Vector3 ComputeCenter(List<Transform> transforms)
     {
         Vector3 ave = new Vector3(0, 0, 0);
         foreach (Transform t in transforms)
@@ -202,7 +202,7 @@ public class CubeStateManager
     }
 
     // Perform an instant turn
-    public void turn(ArrayList list, Vector3 center, Vector3 axis, float amount)
+    public void turn(List<Transform> list, Vector3 center, Vector3 axis, float amount)
     {
         foreach (Transform t in list)
         {

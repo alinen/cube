@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CubeController : MonoBehaviour {
 
@@ -68,15 +69,15 @@ public class CubeController : MonoBehaviour {
 
     public class Rotator : Animator
     {
-        private ArrayList _list;
+        private List<Transform> _list;
         private Vector3 _center;
         private Vector3 _axis;
         private float _rate;
         private float _amount;
         private float _delta;
-        private ArrayList _targets = new ArrayList();
+        private List<Quaternion> _targets = new List<Quaternion>();
 
-        public Rotator(ArrayList list, Vector3 center, Vector3 axis, float amount, float rate = 40)
+        public Rotator(List<Transform> list, Vector3 center, Vector3 axis, float amount, float rate = 40)
         {
             _list = list;
             _center = center;
@@ -121,7 +122,7 @@ public class CubeController : MonoBehaviour {
             return false;
         }
     }
-    private ArrayList rotations = new ArrayList();
+    private List<Animator> rotations = new List<Animator>();
     private int current;
 
     private CubeStateManager _cube = new CubeStateManager();
@@ -143,7 +144,7 @@ public class CubeController : MonoBehaviour {
 
         //Debug.Log(word);
 
-        ArrayList list;
+        List<Transform> list;
         Vector3 center;
         Vector3 axis;
         float amount = 0.0f;

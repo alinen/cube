@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CubeInfo 
 {
@@ -19,7 +20,7 @@ public class CubeInfo
         public uint state;
         public uint level;
     }
-    private ArrayList _cubeInfos = new ArrayList();
+    private List<Cubie> _cubeInfos = new List<Cubie>();
 
     public CubeInfo() { }
 
@@ -98,11 +99,11 @@ public class CubeInfo
         return zeroCount == 2;
     }
 
-    public ArrayList FindTopMiddle()
+    public List<Cubie> FindTopMiddle()
     {
         // top is Y = 1.25
         // middle is X or Z == 0
-        ArrayList result = new ArrayList();
+        List<Cubie> result = new List<Cubie>();
         foreach (Cubie info in _cubeInfos)
         {
             if (info.homePos.y == 1.25 && (info.homePos.x == 0 || info.homePos.z == 0))
@@ -117,9 +118,9 @@ public class CubeInfo
         return result;
     }
 
-    public ArrayList FindTopCorners()
+    public List<Cubie> FindTopCorners()
     {
-        ArrayList result = new ArrayList();
+        List<Cubie> result = new List<Cubie>();
         foreach (Cubie info in _cubeInfos)
         {
             if (info.homePos.y == 1.25 && info.homePos.x != 0 && info.homePos.z != 0)
@@ -130,9 +131,9 @@ public class CubeInfo
         return result;
     }
 
-    public ArrayList FindBottomCorners()
+    public List<Cubie> FindBottomCorners()
     {
-        ArrayList result = new ArrayList();
+        List<Cubie> result = new List<Cubie>();
         foreach (Cubie info in _cubeInfos)
         {
             if (info.homePos.y == -1.25 && info.homePos.x != 0 && info.homePos.z != 0)
@@ -143,9 +144,9 @@ public class CubeInfo
         return result;
     }
 
-    public ArrayList FindMiddleMiddle()
+    public List<Cubie> FindMiddleMiddle()
     {
-        ArrayList result = new ArrayList();
+        List<Cubie> result = new List<Cubie>();
         foreach (Cubie info in _cubeInfos)
         {
             if (info.homePos.y == 0 && info.homePos.x != 0 && info.homePos.z != 0)
@@ -156,11 +157,11 @@ public class CubeInfo
         return result;
     }
 
-    public ArrayList FindBottomMiddle()
+    public List<Cubie> FindBottomMiddle()
     {
         // top is Y = 1.25
         // middle is X or Z == 0
-        ArrayList result = new ArrayList();
+        List<Cubie> result = new List<Cubie>();
         foreach (Cubie info in _cubeInfos)
         {
             if (info.homePos.y == -1.25 && (info.homePos.x == 0 || info.homePos.z == 0))
@@ -175,7 +176,7 @@ public class CubeInfo
         return result;
     }
 
-    public bool Contains(ArrayList list, Cubie c)
+    public bool Contains(List<Cubie> list, Cubie c)
     {
         foreach (Cubie cc in list)
         {
@@ -250,11 +251,11 @@ public class CubeInfo
     // Check for out of place top middle cubes and pick one to solve
     // Ignore the cubes in constraints, because we know these are solved already
     // Scoring assumes that top row is already solved
-    public ArrayList AnalyzeMiddleMiddle(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
+    public List<Cubie> AnalyzeMiddleMiddle(ref CubeInfo.Cubie cubeToFix, List<Cubie> constraints)
     {
         int bestScore = 0;
         cubeToFix = null;
-        ArrayList middleMiddle = FindMiddleMiddle();
+        List<Cubie> middleMiddle = FindMiddleMiddle();
         foreach (Cubie c in middleMiddle)
         {
             c.score = 0;
@@ -278,11 +279,11 @@ public class CubeInfo
 
     // Check for out of place top middle cubes and pick one to solve
     // Ignore the cubes in constraints, because we know these are solved already
-    public ArrayList AnalyzeTopMiddle(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
+    public List<Cubie> AnalyzeTopMiddle(ref CubeInfo.Cubie cubeToFix, List<Cubie> constraints)
     {
         int bestScore = 0;
         cubeToFix = null;
-        ArrayList topMiddle = FindTopMiddle();
+        List<Cubie> topMiddle = FindTopMiddle();
         foreach (Cubie c in topMiddle)
         {
             c.score = 0;
@@ -306,11 +307,11 @@ public class CubeInfo
 
     // Check for out of place top middle cubes and pick one to solve
     // Ignore the cubes in constraints, because we know these are solved already
-    public ArrayList AnalyzeTopCorner(ref CubeInfo.Cubie cubeToFix, ArrayList constraints)
+    public List<Cubie> AnalyzeTopCorner(ref CubeInfo.Cubie cubeToFix, List<Cubie> constraints)
     {
         int bestScore = 0;
         cubeToFix = null;
-        ArrayList topCorner = FindTopCorners();
+        List<Cubie> topCorner = FindTopCorners();
         foreach (Cubie c in topCorner)
         {
             c.score = 0;
@@ -339,11 +340,14 @@ public class CubeInfo
         TWO_NON_CONSECUTIVE_CORRECT = 3
     };
 
-    public ArrayList AnalyzeBottomCorners(
-        ref ArrayList cubesToFix, ref CornerCase sitch, ArrayList constraints)
+    /*
+    public List<Cubie> AnalyzeBottomCorners(
+        ref List<Cubie> cubesToFix, ref CornerCase sitch, List<Cubie> constraints)
     {
         int bestScore = 0;
-        ArrayList bottomCorner = FindBottomCorners();
+        List<Cubie> bottomCorner = FindBottomCorners();
+        CubeInfo.Cubie RB = bottomCorner.
+        
         foreach (Cubie c in bottomCorner)
         {
             c.score = 0;
@@ -363,6 +367,6 @@ public class CubeInfo
         }
         return bottomCorner;
 
-    }
+    }*/
 
 }
