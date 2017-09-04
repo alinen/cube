@@ -53,7 +53,7 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveTopMiddle));
         _tasks.Add(new CubeTask(SolveTopCorners));
         _tasks.Add(new CubeTask(SolveMiddleMiddles));
-        //_tasks.Add(new CubeTask(SolveBottomCornerPositions));
+        _tasks.Add(new CubeTask(SolveBottomCornerPositions));
         //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
     }
 
@@ -65,10 +65,11 @@ public class CubePlanner : MonoBehaviour
             //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
 
             // Test analyzing the bottom face of cubes
-            List<CubeInfo.Cubie> cubes = new List<CubeInfo.Cubie>();
-            CubeInfo.CornerCase sitch = CubeInfo.CornerCase.CORRECT_ORDER;
-            List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners(
-                ref cubes, ref sitch, _solved);
+            //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners( ref sorted);
+            List<string> path = new List<string>();
+            SolveBottomCornerPositions(ref path);
+            Debug.Log("TEST " + PathToString(path));
+            ExecutePath(path); // changes planning cube immediately
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
@@ -102,38 +103,83 @@ public class CubePlanner : MonoBehaviour
         }
     }
 
-        /*
-    bool SolveBottomCornerPositions(ref ArrayList path)
+    bool SolveBottomCornerPositions(ref List<string> path)
     {
-        CubeInfo.Cubie cubie = null;
-        ArrayList middleMiddleCubes = _cubies.AnalyzeMiddleMiddle(ref cubie, _solved);
-        if (cubie == null) return true; // no work to do!
+        bool sorted = false;
+        List<CubeInfo.Cubie> bottomCorners = _cubies.AnalyzeBottomCorners(ref sorted);
 
-        Debug.Log("FIX " + cubie.id);
-
-        // case 1: no work to do -> no work to do, return
-        // case 2: cube is in top row, but wrong pos or ori
-        // case 3: cube is in middle row
-        // case 4: cube is in bottom row
-
-        if (cubie.state == (CubeInfo.POS | CubeInfo.ORI))
+        // case 1: sorted but possible needs a rotation
+        // case 2: need to rotate three
+        // case 3: need to swap consecutive cubies
+        // case 4: need to swap opposite cubies
+        if (sorted)
         {
-            _solved.Add(cubie);
-            return _solved.Count >= 8; // this hard-codes the order of steps (middle first => 4 cubes, corner next => 8 cubes)
-        }
-
-        if (cubie.level == CubeInfo.BOT)
-        {
-            return SolveMiddleMiddle_CaseBottom(cubie, ref path);
+            string[] down = { "D", "D'", "D2", "" };
+            ArrayList steps = new ArrayList();
+            steps.Add(down);
+            path = _solver.Search(null, _solved, steps);
         }
         else
         {
-            Debug.Log("MiddleMiddle cubie right position; wrong ori -> moving to bottom");
-            return SolveMiddleMiddle_CaseMiddle(cubie, ref path); // move to bottom and then solve
+            ArrayList steps = new ArrayList();
+            string[] down = { "D", "D'", "D2", "" };
+            string[] sequences =
+            {
+                // rotate C
+                "L' D R D' L D R' D'", 
+                "F' D B D' F D B' D'",
+                "R' D L D' R D L' D'",
+                "B' D F D' B D F' D'",
+
+                // rotate CC
+                "D R D' L' D R' D' L",
+                "D B D' F' D B' D' F",
+                "D L D' R' D L' D' R",
+                "D F D' B' D F' D' B",
+
+                // swap consecutive
+                "F D' B' D F' D' B D2",
+                "B D' F' D B' D' F D2",
+                "L D' R' D L' D' R D2",
+                "R D' L' D R' D' L D2",
+
+                // swap non-consecutive
+                "D F D L D' L' F'",
+                "D R D F D' F' R'",
+                "D B D R D' R' B'",
+                "D L D B D' B' L'"
+            };
+
+            // ASN TODO: We know the sequence if we analyze the cube more closely
+            foreach (string seqn in sequences)
+            {
+                steps.Clear();
+                //steps.Add(down);
+                string[] words = seqn.Split();
+                foreach (string word in words)
+                {
+                    string[] tmp = { word };
+                    steps.Add(tmp);
+                }
+                path = _solver.Search(null, _solved, steps);
+                if (path.Count > 0) break;
+            }
         }
-        return false;
+
+        /*
+        bool solved = path.Count > 0;
+        if (solved)
+        {
+            foreach (CubeInfo.Cubie c in bottomCorners)
+            {
+                solved = solved && _cubies.CorrectPos(c);
+            }
+        }*/
+        // ASN TODO: Can't tell if this step is done because the success 
+        // criteria can only be checked after the path is applied!
+        // -> need to reorganize 
+        return path.Count > 0;
     }
-        */
 
     bool SolveMiddleMiddles(ref List<string> path)
     {
@@ -548,3 +594,66 @@ public class CubePlanner : MonoBehaviour
     }
     //F D2 F' D -> D' F D2 F'
 }
+
+/*
+Corners:
+rotate C
+L' D R D' L D R' D'
+F' D B D' F D B' D'
+R' D L D' R D L' D'
+B' D F D' B D F' D'
+
+rotate CC
+D R D' L' D R' D' L
+D B D' F' D B' D' F
+D L D' R' D L' D' R
+D F D' B' D F' D' B
+
+swap consecutive
+F D' B' D F' D' B D2
+B D' F' D B' D' F D2
+L D' R' D L' D' R D2
+R D' L' D R' D' L D2
+
+swap non-consecutive
+D F D L D' L' F'
+D R D F D' F' R'
+D B D R D' R' B'
+D L D B D' B' L'
+
+Middle:
+rotate C
+F2 D L' R F2 L R' D F2
+L2 D B' F L2 B F' D L2
+B2 D R' L B2 R L' D B2
+R2 D F' B R2 F B' D R2
+
+rotate CC
+F2 D' L' R F2 L R' D' F2
+L2 D' B' F L2 B F' D' L2
+B2 D' R' L B2 R L' D' B2
+R2 D' F' B R2 F B' D' R2
+
+swap opposite
+R2 L2 U R2 L2 D2 R2 L2 U R2 L2
+R F D F' D' R2 B' D' B D R
+
+swap neighbors
+R F D F' D' R2 B' D' B D R
+B R D R' D' B2 L' D' L D B
+
+Orientation:
+
+corner flip:
+B' U B L U L' {D} L U' L' B' U' B {D'}
+R' U R B U B' {D} B U' B' R' U' R {D'}
+F' U F R U R' {D} R U' R' F' U' F {D'}
+L' U L F U F' {D} F U' F' L' U' L {D'}
+
+middle flip:
+F U' D R2 U2 D2 L {D} L' D2 U2 R2 D' U F' {D'}
+L U' D F2 U2 D2 B {D} B' D2 U2 F2 D' U L' {D'}
+B U' D L2 U2 D2 R {D} R' D2 U2 L2 D' U B' {D'}
+R U' D B2 U2 D2 F {D} F' D2 U2 B2 D' U R' {D'}
+
+    */

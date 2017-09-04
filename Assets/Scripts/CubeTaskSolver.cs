@@ -26,7 +26,7 @@ public class CubeTaskSolver
 
     private int ScoreState(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
     {
-        bool requirements = _cubies.IsSolved(cubie);
+        bool requirements = cubie != null? _cubies.IsSolved(cubie) : true;
         for (int i = 0; i < constraints.Count && requirements; i++)
         {
             CubeInfo.Cubie info = constraints[i] as CubeInfo.Cubie;
@@ -40,7 +40,7 @@ public class CubeTaskSolver
         {
             CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
             if (_cubies.CorrectPos(info)) score++;
-            if (_cubies.CorrectOri(info)) score++;
+            //if (_cubies.CorrectOri(info)) score++; // ASN TODO: This screws up moving corners!
         }
         return score;
     }
