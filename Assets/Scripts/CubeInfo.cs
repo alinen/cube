@@ -376,7 +376,7 @@ public class CubeInfo
         return check1 && check2 && check3;
     }
 
-    public List<Cubie> AnalyzeBottomCorners(ref bool sorted)
+    public List<Cubie> AnalyzeBottomCornerOrder(ref bool sorted)
     {
         List<Cubie> bottomCorner = FindBottomCorners();
         CubeInfo.Cubie RB = bottomCorner.Find(x => RightBack(x));

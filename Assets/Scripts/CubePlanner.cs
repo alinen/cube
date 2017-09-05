@@ -71,6 +71,8 @@ public class CubePlanner : MonoBehaviour
             Debug.Log("TEST " + PathToString(path));
             ExecutePath(path); // changes planning cube immediately
 
+
+
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
         }
@@ -106,7 +108,7 @@ public class CubePlanner : MonoBehaviour
     bool SolveBottomCornerPositions(ref List<string> path)
     {
         bool sorted = false;
-        List<CubeInfo.Cubie> bottomCorners = _cubies.AnalyzeBottomCorners(ref sorted);
+        List<CubeInfo.Cubie> bottomCorners = _cubies.AnalyzeBottomCornerOrder(ref sorted);
 
         // case 1: sorted but possible needs a rotation
         // case 2: need to rotate three
@@ -117,7 +119,7 @@ public class CubePlanner : MonoBehaviour
             string[] down = { "D", "D'", "D2", "" };
             ArrayList steps = new ArrayList();
             steps.Add(down);
-            path = _solver.Search(null, _solved, steps);
+            path = _solver.Search(null, _solved, steps, _solver.ScorePositions);
         }
         else
         {
@@ -161,7 +163,7 @@ public class CubePlanner : MonoBehaviour
                     string[] tmp = { word };
                     steps.Add(tmp);
                 }
-                path = _solver.Search(null, _solved, steps);
+                path = _solver.Search(null, _solved, steps, _solver.ScorePositions);
                 if (path.Count > 0) break;
             }
         }
@@ -263,7 +265,7 @@ public class CubePlanner : MonoBehaviour
                 string[] tmp = { word };
                 steps.Add(tmp);
             }
-            path = _solver.Search(cubie, _solved, steps);
+            path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
             if (path.Count > 0) break;
         }
 
@@ -319,7 +321,7 @@ public class CubePlanner : MonoBehaviour
         steps.Add(down);
         steps.Add(reverse); // reverse level0
 
-        path = _solver.Search(cubie, _solved, steps);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
         if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 8;
     }
@@ -349,7 +351,7 @@ public class CubePlanner : MonoBehaviour
         steps.Add(down);
         steps.Add(reverse);
 
-        path = _solver.Search(cubie, _solved, steps);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
         if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 8;
     }
@@ -401,7 +403,7 @@ public class CubePlanner : MonoBehaviour
         steps.Add(level1);
         steps.Add(level0);
 
-        path = _solver.Search(cubie, _solved, steps);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
         if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 4;
     }
@@ -418,7 +420,7 @@ public class CubePlanner : MonoBehaviour
         steps.Add(level1);
         steps.Add(level0);
 
-        path = _solver.Search(cubie, _solved, steps);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
         if (path.Count != 0) _solved.Add(cubie);
         return _solved.Count >= 4;
     }
@@ -432,7 +434,7 @@ public class CubePlanner : MonoBehaviour
         steps.Add(level0);
         steps.Add(level10);
 
-        path = _solver.Search(cubie, _solved, steps);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
 
         if (path.Count == 0) // try other case
         {
@@ -452,7 +454,7 @@ public class CubePlanner : MonoBehaviour
             steps.Add(level2);
             steps.Add(level3);
             steps.Add(level3);
-            path = _solver.Search(cubie, _solved, steps);
+            path = _solver.Search(cubie, _solved, steps, _solver.ScoreCubieSolved);
         }
 
         if (path.Count != 0) _solved.Add(cubie);

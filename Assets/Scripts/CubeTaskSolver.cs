@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class CubeTaskSolver
 {
+    public delegate int ScoreStateFn(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints);
     private CubeStateManager _cube;
     private CubeInfo _cubies;
 
@@ -15,18 +16,18 @@ public class CubeTaskSolver
         _cubies = cubies;
     }
 
-    public List<string> Search(CubeInfo.Cubie c, List<CubeInfo.Cubie> constraints, ArrayList steps)
+    public List<string> Search(CubeInfo.Cubie c, 
+        List<CubeInfo.Cubie> constraints, ArrayList steps, ScoreStateFn scoreFn)
     {
         List<string> path = new List<string>();
         List<string> best = new List<string>();
-        int s = Search(c, constraints, steps, 0, ref path, ref best);
-        //Debug.Log("Found path with score " + s);
+        int s = Search(c, constraints, steps, 0, scoreFn, ref path, ref best);
         return best;
     }
 
-    private int ScoreState(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
+    public int ScoreCubieSolved(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
     {
-        bool requirements = cubie != null? _cubies.IsSolved(cubie) : true;
+        bool requirements = _cubies.IsSolved(cubie);
         for (int i = 0; i < constraints.Count && requirements; i++)
         {
             CubeInfo.Cubie info = constraints[i] as CubeInfo.Cubie;
@@ -40,16 +41,37 @@ public class CubeTaskSolver
         {
             CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
             if (_cubies.CorrectPos(info)) score++;
-            //if (_cubies.CorrectOri(info)) score++; // ASN TODO: This screws up moving corners!
+            if (_cubies.CorrectOri(info)) score++; 
+        }
+        return score;
+    }
+
+    public int ScorePositions(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
+    {
+        bool requirements = cubie != null? _cubies.CorrectPos(cubie) : true;
+        for (int i = 0; i < constraints.Count && requirements; i++)
+        {
+            CubeInfo.Cubie info = constraints[i] as CubeInfo.Cubie;
+            if (!_cubies.IsSolved(info)) requirements = false;
+        }
+
+        if (!requirements) return 0;
+
+        int score = 0;
+        for (int i = 0; i < _cubies.GetNumCubes(); i++)
+        {
+            CubeInfo.Cubie info = _cubies.GetCubeInfo(i);
+            if (_cubies.CorrectPos(info)) score++;
         }
         return score;
     }
 
     // Solve for cubie given the passed constraints
     private int Search(CubeInfo.Cubie c, List<CubeInfo.Cubie> constraints, 
-        ArrayList steps, int stepNum, ref List<string> path, ref List<string> bestPath)
+        ArrayList steps, int stepNum, ScoreStateFn scoreFn, 
+        ref List<string> path, ref List<string> bestPath)
     {
-        int score = ScoreState(c, constraints);
+        int score = scoreFn(c, constraints);
         if (stepNum >= steps.Count)
         {
             //Debug.Log("  score " + score + " " + path[0]);
@@ -85,7 +107,7 @@ public class CubeTaskSolver
             }
             path.Add(turn);
             List<string> bestChild = new List<string>();
-            int tmp = Search(c, constraints, steps, stepNum + 1, ref path, ref bestChild);
+            int tmp = Search(c, constraints, steps, stepNum + 1, scoreFn, ref path, ref bestChild);
             if (tmp > score)
             {
                 score = tmp;
