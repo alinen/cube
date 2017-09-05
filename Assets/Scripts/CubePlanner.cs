@@ -55,17 +55,22 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveMiddleMiddles, _cubies.MiddleMiddleSolved));
         _tasks.Add(new CubeTask(SolveOneCornerPosition, _cubies.BottomOneCornerCorrect));
         _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions));
-        //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
+        _tasks.Add(new CubeTask(SolveBottomMiddlePositions, _cubies.BottomMiddlesCorrectPositions));
     }
 
     void Update ()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
+            //List<string> path = new List<string>();
+            //SolveOneCornerPosition(ref path);
+            //ExecutePath(path); // changes planning cube immediately
+            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomOneCornerCorrect());
+
             List<string> path = new List<string>();
-            SolveOneCornerPosition(ref path);
+            SolveBottomMiddlePositions(ref path);
             ExecutePath(path); // changes planning cube immediately
-            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomOneCornerCorrect());
+            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectPositions());
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -73,10 +78,10 @@ public class CubePlanner : MonoBehaviour
 
             // Test analyzing the bottom face of cubes
             //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners( ref sorted);
-            List<string> path = new List<string>();
-            SolveBottomCornerPositions(ref path);
-            ExecutePath(path); // changes planning cube immediately
-            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectPositions());
+            //List<string> path = new List<string>();
+            //SolveBottomCornerPositions(ref path);
+            //ExecutePath(path); // changes planning cube immediately
+            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectPositions());
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
@@ -123,6 +128,56 @@ public class CubePlanner : MonoBehaviour
         ArrayList steps = new ArrayList();
         steps.Add(down);
         path = _solver.Search(cubie, _solved, steps, _solver.ScorePositions);
+
+        return path.Count > 0;
+    }
+
+    bool SolveBottomMiddlePositions(ref List<string> path)
+    {
+        List<CubeInfo.Cubie> bottom = _cubies.FindBottomMiddle();
+        bool sorted = _cubies.BottomMiddlesCorrectPositions();
+        if (sorted) return true; // no work to do
+
+        // case 1: need to rotate three
+        // case 2: need to swap consecutive cubies
+        // case 3: need to swap opposite cubies
+        ArrayList steps = new ArrayList();
+        string[] sequences =
+        {
+            //rotate C
+            "F2 D L' R F2 L R' D F2", 
+            "L2 D B' F L2 B F' D L2", 
+            "B2 D R' L B2 R L' D B2", 
+            "R2 D F' B R2 F B' D R2", 
+
+            //rotate CC
+            "F2 D' L' R F2 L R' D' F2", 
+            "L2 D' B' F L2 B F' D' L2", 
+            "B2 D' R' L B2 R L' D' B2", 
+            "R2 D' F' B R2 F B' D' R2", 
+
+            //swap opposite
+            "R2 L2 U R2 L2 D2 R2 L2 U R2 L2", 
+            "R F D F' D' R2 B' D' B D R", 
+
+            //swap neighbors
+            "R F D F' D' R2 B' D' B D R", 
+            "B R D R' D' B2 L' D' L D B" 
+        };
+
+        // ASN TODO: We know the sequence if we analyze the cube more closely
+        foreach (string seqn in sequences)
+        {
+            steps.Clear();
+            string[] words = seqn.Split();
+            foreach (string word in words)
+            {
+                string[] tmp = { word };
+                steps.Add(tmp);
+            }
+            path = _solver.Search(null, _solved, steps, _solver.ScorePositions);
+            if (path.Count > 0) break;
+        }
 
         return path.Count > 0;
     }

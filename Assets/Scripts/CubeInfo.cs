@@ -405,6 +405,16 @@ public class CubeInfo
         return true;
     }
 
+    public bool BottomMiddlesCorrectPositions()
+    {
+        List<Cubie> bottom = FindBottomMiddle();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectPos(c)) return false;
+        }
+        return true;
+    }
+
     public bool TopMiddleSolved()
     {
         List<Cubie> topMiddle = FindTopMiddle();
