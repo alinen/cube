@@ -50,10 +50,10 @@ public class CubePlanner : MonoBehaviour
             }
         }
 
-        _tasks.Add(new CubeTask(SolveTopMiddle));
-        _tasks.Add(new CubeTask(SolveTopCorners));
-        _tasks.Add(new CubeTask(SolveMiddleMiddles));
-        _tasks.Add(new CubeTask(SolveBottomCornerPositions));
+        _tasks.Add(new CubeTask(SolveTopMiddle, _cubies.TopMiddleSolved));
+        _tasks.Add(new CubeTask(SolveTopCorners, _cubies.TopCornersSolved));
+        _tasks.Add(new CubeTask(SolveMiddleMiddles, _cubies.MiddleMiddleSolved));
+        _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions));
         //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
     }
 
@@ -96,19 +96,20 @@ public class CubePlanner : MonoBehaviour
 
     void SolveTask(ref List<string> path)
     {
-        Debug.Log("Solve task: " + _currentTask);
         CubeTask task = _tasks[_currentTask] as CubeTask;
-        bool finished = task.Solve(ref path);
-        if (finished && _currentTask+1 < _tasks.Count)
+        if (task.Finished() && _currentTask+1 < _tasks.Count)
         {
             _currentTask++;
         }
+
+        bool success = task.Solve(ref path);
+        Debug.Log("Solve task: " + _currentTask + " "+ success);
     }
 
     bool SolveBottomCornerPositions(ref List<string> path)
     {
-        bool sorted = false;
-        List<CubeInfo.Cubie> bottomCorners = _cubies.AnalyzeBottomCornerOrder(ref sorted);
+        List<CubeInfo.Cubie> bottomCorners = _cubies.FindBottomCorners();
+        bool sorted = _cubies.BottomCornersSorted();
 
         // case 1: sorted but possible needs a rotation
         // case 2: need to rotate three

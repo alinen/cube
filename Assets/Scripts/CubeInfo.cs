@@ -376,7 +376,8 @@ public class CubeInfo
         return check1 && check2 && check3;
     }
 
-    public List<Cubie> AnalyzeBottomCornerOrder(ref bool sorted)
+    // return true if the bottom corners are in the correct order
+    public bool BottomCornersSorted()
     {
         List<Cubie> bottomCorner = FindBottomCorners();
         CubeInfo.Cubie RB = bottomCorner.Find(x => RightBack(x));
@@ -390,7 +391,47 @@ public class CubeInfo
         clockwise.Add(LF);
         clockwise.Add(FR);
         
-        sorted = CorrectCornerOrder(clockwise);
-        return bottomCorner;
+        bool sorted = CorrectCornerOrder(clockwise);
+        return sorted;
+    }
+
+    public bool BottomCornersCorrectPositions()
+    {
+        List<Cubie> bottom = FindBottomCorners();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectPos(c)) return false;
+        }
+        return true;
+    }
+
+    public bool TopMiddleSolved()
+    {
+        List<Cubie> topMiddle = FindTopMiddle();
+        foreach (Cubie c in topMiddle)
+        {
+            if (!IsSolved(c)) return false;
+        }
+        return true;
+    }
+
+    public bool TopCornersSolved()
+    {
+        List<Cubie> top = FindTopCorners();
+        foreach (Cubie c in top)
+        {
+            if (!IsSolved(c)) return false;
+        }
+        return true;
+    }
+
+    public bool MiddleMiddleSolved()
+    {
+        List<Cubie> top = FindMiddleMiddle();
+        foreach (Cubie c in top)
+        {
+            if (!IsSolved(c)) return false;
+        }
+        return true;
     }
 }
