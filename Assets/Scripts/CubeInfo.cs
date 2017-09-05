@@ -415,6 +415,26 @@ public class CubeInfo
         return true;
     }
 
+    public bool BottomCornersCorrectOri()
+    {
+        List<Cubie> bottom = FindBottomCorners();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectOri(c)) return false;
+        }
+        return true;
+    }
+
+    public bool BottomMiddlesCorrectOri()
+    {
+        List<Cubie> bottom = FindBottomMiddle();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectOri(c)) return false;
+        }
+        return true;
+    }
+
     public bool TopMiddleSolved()
     {
         List<Cubie> topMiddle = FindTopMiddle();
@@ -459,6 +479,25 @@ public class CubeInfo
                 break;
             }
         }
+        return bottom;
+    }
+
+    // Assumes positions are correct and finds a twisted corner
+    public List<Cubie> AnalyzeBottomCornerOri(ref Cubie cubie, List<Cubie> constraints)
+    {
+        cubie = null; 
+
+        // TODO: Could search for consecutive pair too
+        List<Cubie> bottom = FindBottomCorners();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectOri(c)) // facing up means facing correct way on bottom row
+            {
+                cubie = c;
+                break;
+            }
+        }
+
         return bottom;
     }
 

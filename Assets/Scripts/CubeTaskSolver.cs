@@ -25,7 +25,7 @@ public class CubeTaskSolver
         return best;
     }
 
-    public int ScoreCubieSolved(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
+    public int ScoreSolved(CubeInfo.Cubie cubie, List<CubeInfo.Cubie> constraints)
     {
         bool requirements = _cubies.IsSolved(cubie);
         for (int i = 0; i < constraints.Count && requirements; i++)
