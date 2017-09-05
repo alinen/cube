@@ -434,4 +434,32 @@ public class CubeInfo
         }
         return true;
     }
+
+    // find a top corner with the correct position to make as a reference point
+    public List<Cubie> AnalyzeBottomCorners(ref Cubie cubie, List<Cubie> constraints)
+    {
+        // TODO: Could search for consecutive pair too
+        List<Cubie> bottom = FindBottomCorners();
+        cubie = bottom[0]; // just use first one by default
+        foreach (Cubie c in bottom)
+        {
+            if (FacingUp(c)) // facing up means facing correct way on bottom row
+            {
+                cubie = c;
+                break;
+            }
+        }
+        return bottom;
+    }
+
+    // return true if at least one corner is correct
+    public bool BottomOneCornerCorrect()
+    {
+        List<Cubie> bottom = FindBottomCorners();
+        foreach (Cubie c in bottom)
+        {
+            if (CorrectPos(c)) return true;
+        }
+        return false;
+    }
 }

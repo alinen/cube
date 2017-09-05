@@ -53,14 +53,21 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveTopMiddle, _cubies.TopMiddleSolved));
         _tasks.Add(new CubeTask(SolveTopCorners, _cubies.TopCornersSolved));
         _tasks.Add(new CubeTask(SolveMiddleMiddles, _cubies.MiddleMiddleSolved));
+        _tasks.Add(new CubeTask(SolveOneCornerPosition, _cubies.BottomOneCornerCorrect));
         _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions));
         //_tasks.Add(new CubeTask(SolveBottomMiddlePositions));
     }
 
-
     void Update ()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            List<string> path = new List<string>();
+            SolveOneCornerPosition(ref path);
+            ExecutePath(path); // changes planning cube immediately
+            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomOneCornerCorrect());
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
 
@@ -68,10 +75,8 @@ public class CubePlanner : MonoBehaviour
             //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners( ref sorted);
             List<string> path = new List<string>();
             SolveBottomCornerPositions(ref path);
-            Debug.Log("TEST " + PathToString(path));
             ExecutePath(path); // changes planning cube immediately
-
-
+            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectPositions());
 
             //UpdateCubeState(); // only want to do this once in the beginning
             // in the future, we don't need a shadow cube
@@ -104,6 +109,22 @@ public class CubePlanner : MonoBehaviour
 
         bool success = task.Solve(ref path);
         Debug.Log("Solve task: " + _currentTask + " "+ success);
+    }
+
+    bool SolveOneCornerPosition(ref List<string> path)
+    {
+        CubeInfo.Cubie cubie = null;
+        List<CubeInfo.Cubie> bottom = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
+        if (cubie == null) return true; // no work to do
+
+        Debug.Log("FIX POS " + cubie.id);
+
+        string[] down = { "D", "D'", "D2", "" };
+        ArrayList steps = new ArrayList();
+        steps.Add(down);
+        path = _solver.Search(cubie, _solved, steps, _solver.ScorePositions);
+
+        return path.Count > 0;
     }
 
     bool SolveBottomCornerPositions(ref List<string> path)
@@ -169,18 +190,6 @@ public class CubePlanner : MonoBehaviour
             }
         }
 
-        /*
-        bool solved = path.Count > 0;
-        if (solved)
-        {
-            foreach (CubeInfo.Cubie c in bottomCorners)
-            {
-                solved = solved && _cubies.CorrectPos(c);
-            }
-        }*/
-        // ASN TODO: Can't tell if this step is done because the success 
-        // criteria can only be checked after the path is applied!
-        // -> need to reorganize 
         return path.Count > 0;
     }
 
