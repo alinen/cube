@@ -56,7 +56,8 @@ public class CubePlanner : MonoBehaviour
         _tasks.Add(new CubeTask(SolveOneCornerPosition, _cubies.BottomOneCornerCorrect));
         _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions));
         _tasks.Add(new CubeTask(SolveBottomMiddlePositions, _cubies.BottomMiddlesCorrectPositions));
-        _tasks.Add(new CubeTask(SolveBottomCornerOri, _cubies.BottomMiddlesCorrectOri));
+        _tasks.Add(new CubeTask(SolveBottomCornerOri, _cubies.BottomCornersCorrectOri));
+        _tasks.Add(new CubeTask(SolveBottomMiddleOri, _cubies.BottomMiddlesCorrectOri));
     }
 
     void Update ()
@@ -73,10 +74,15 @@ public class CubePlanner : MonoBehaviour
             //ExecutePath(path); // changes planning cube immediately
             //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectPositions());
 
+            //List<string> path = new List<string>();
+            //SolveBottomCornerOri(ref path);
+            //ExecutePath(path); // changes planning cube immediately
+            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectOri());
+
             List<string> path = new List<string>();
-            SolveBottomCornerOri(ref path);
+            SolveBottomMiddleOri(ref path);
             ExecutePath(path); // changes planning cube immediately
-            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectOri());
+            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectOri());
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -160,6 +166,55 @@ public class CubePlanner : MonoBehaviour
             "B U' B' R' U' R",
             "R U' R' F' U' F",
             "F U' F' L' U' L"
+        };
+
+        ArrayList steps = new ArrayList();
+        for (int i = 0; i < seqnA.Length; i++)
+        {
+            steps.Clear();
+            string[] words = seqnA[i].Split();
+            foreach (string word in words)
+            {
+                string[] tmp = { word };
+                steps.Add(tmp);
+            }
+            steps.Add(down);
+            words = seqnB[i].Split();
+            foreach (string word in words)
+            {
+                string[] tmp = { word };
+                steps.Add(tmp);
+            }
+            steps.Add(down);
+            path = _solver.Search(cubie, _solved, steps, _solver.ScoreSolved);
+            if (path.Count > 0) break;
+        }
+
+        return path.Count > 0;
+    }
+
+    bool SolveBottomMiddleOri(ref List<string> path)
+    {
+        CubeInfo.Cubie cubie = null;
+        List<CubeInfo.Cubie> bottom = _cubies.AnalyzeBottomMiddleOri(ref cubie, _solved);
+        if (cubie == null) return true; // no work to do
+
+        Debug.Log("FIX ORI: " + cubie.id);
+
+        string[] down = { "D", "D'", "D2", "" };
+        string[] seqnA =
+        {
+            "F U' D R2 U2 D2 L",
+            "L U' D F2 U2 D2 B",
+            "B U' D L2 U2 D2 R",
+            "R U' D B2 U2 D2 F"
+        };
+        string[] seqnB =
+        {
+            "L' D2 U2 R2 D' U F'",
+            "B' D2 U2 F2 D' U L'",
+            "R' D2 U2 L2 D' U B'",
+            "F' D2 U2 B2 D' U R'"
         };
 
         ArrayList steps = new ArrayList();

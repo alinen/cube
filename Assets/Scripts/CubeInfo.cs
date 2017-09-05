@@ -501,6 +501,26 @@ public class CubeInfo
         return bottom;
     }
 
+    // ASN TODO: Functions such as these could be generalized
+    // e.g. Analyze(BOTTOM, MIDDLE, ORI)
+    public List<Cubie> AnalyzeBottomMiddleOri(ref Cubie cubie, List<Cubie> constraints)
+    {
+        cubie = null;
+
+        // TODO: Could search for consecutive pair too
+        List<Cubie> bottom = FindBottomMiddle();
+        foreach (Cubie c in bottom)
+        {
+            if (!CorrectOri(c)) // facing up means facing correct way on bottom row
+            {
+                cubie = c;
+                break;
+            }
+        }
+
+        return bottom;
+    }
+
     // return true if at least one corner is correct
     public bool BottomOneCornerCorrect()
     {
