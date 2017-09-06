@@ -16,11 +16,12 @@ public class Orbit : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        float x = radius * Mathf.Cos(_angle);
-        float z = radius * Mathf.Sin(_angle);
-        float y = transform.position.y;
+        float x = Mathf.Cos(_angle);
+        float z = Mathf.Sin(_angle);
+        float y = Mathf.Cos(_angle);
         _angle += _inc * Time.deltaTime;
-        transform.position = new Vector3(x, y, z);
+        Vector3 p = new Vector3(x, y, z).normalized * radius;
+        transform.position = p;
         transform.LookAt(target);
 	}
 }

@@ -24,15 +24,19 @@ public class CubeDemo : MonoBehaviour {
 
     public void ParseRecipe(string s)
     {
-        _controller.ClearQueue();
-
-        char[] delimiterChars = { ' ' };
-        string[] words = s.Split(delimiterChars);
-        for (int w = 0; w < words.Length; w++)
+        if (_controller)
         {
-            string word = words[w];
-            _controller.QueueCommand(word, turnRate);
+            _controller.ClearQueue();
+
+            char[] delimiterChars = { ' ' };
+            string[] words = s.Split(delimiterChars);
+            for (int w = 0; w < words.Length; w++)
+            {
+                string word = words[w];
+                _controller.QueueCommand(word, turnRate);
+            }
         }
+        else sequence = s;
     }
 
     // Update is called once per frame
