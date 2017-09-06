@@ -165,6 +165,11 @@ public class CubeController : MonoBehaviour {
         rotations.Add(new Spiner(transform, Vector3.up, turnRate));
     }
 
+    public bool Finished()
+    {
+        return current >= rotations.Count;
+    }
+
     void Update ()
     {
         if (current >= rotations.Count) return;

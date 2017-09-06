@@ -6,6 +6,7 @@ using System;
 public class CubePlanner : MonoBehaviour
 {
     public string startState = "F' D";
+    public bool demo = false;
 
     private CubeStateManager _cube = new CubeStateManager();
     private CubeInfo _cubies = new CubeInfo();
@@ -62,46 +63,62 @@ public class CubePlanner : MonoBehaviour
 
     void Update ()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (!demo)
         {
-            //List<string> path = new List<string>();
-            //SolveOneCornerPosition(ref path);
-            //ExecutePath(path); // changes planning cube immediately
-            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomOneCornerCorrect());
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                //List<string> path = new List<string>();
+                //SolveOneCornerPosition(ref path);
+                //ExecutePath(path); // changes planning cube immediately
+                //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomOneCornerCorrect());
 
-            //List<string> path = new List<string>();
-            //SolveBottomMiddlePositions(ref path);
-            //ExecutePath(path); // changes planning cube immediately
-            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectPositions());
+                //List<string> path = new List<string>();
+                //SolveBottomMiddlePositions(ref path);
+                //ExecutePath(path); // changes planning cube immediately
+                //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectPositions());
 
-            //List<string> path = new List<string>();
-            //SolveBottomCornerOri(ref path);
-            //ExecutePath(path); // changes planning cube immediately
-            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectOri());
+                //List<string> path = new List<string>();
+                //SolveBottomCornerOri(ref path);
+                //ExecutePath(path); // changes planning cube immediately
+                //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectOri());
 
-            List<string> path = new List<string>();
-            SolveBottomMiddleOri(ref path);
-            ExecutePath(path); // changes planning cube immediately
-            Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectOri());
+                //List<string> path = new List<string>();
+                //SolveBottomMiddleOri(ref path);
+                //ExecutePath(path); // changes planning cube immediately
+                //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomMiddlesCorrectOri());
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
+
+                // Test analyzing the bottom face of cubes
+                //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners( ref sorted);
+                //List<string> path = new List<string>();
+                //SolveBottomCornerPositions(ref path);
+                //ExecutePath(path); // changes planning cube immediately
+                //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectPositions());
+
+                //UpdateCubeState(); // only want to do this once in the beginning
+                // in the future, we don't need a shadow cube
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                StepTask();
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        else
         {
-            //Test("B' D B R D' R' D2"); // Run Test1: D R D2 R'  B' D' B
+            if (NotAnimating() && !_cubies.IsSolved())
+            {
+                _cube.SortCubeGroups();
 
-            // Test analyzing the bottom face of cubes
-            //List<CubeInfo.Cubie> bottomCornerCubes = _cubies.AnalyzeBottomCorners( ref sorted);
-            //List<string> path = new List<string>();
-            //SolveBottomCornerPositions(ref path);
-            //ExecutePath(path); // changes planning cube immediately
-            //Debug.Log("TEST " + PathToString(path)+" "+ _cubies.BottomCornersCorrectPositions());
-
-            //UpdateCubeState(); // only want to do this once in the beginning
-            // in the future, we don't need a shadow cube
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            StepTask();
+                List<string> path = new List<string>();
+                SolveTask(ref path);
+                
+                Debug.Log("PATH " + PathToString(path));
+                AnimatePath(path); // for visuals, changes display cube over many frames
+            }
         }
 	}
 
@@ -638,22 +655,24 @@ public class CubePlanner : MonoBehaviour
 
     void AnimatePath(List<string> path)
     {
-        CubeDemo demo = gameObject.GetComponent<CubeDemo>();
+        CubeController demo = GetComponent<CubeController>();
         if (demo == null)
         {
-            Debug.LogWarning("No CubeDemo component. Cannot animate!");
+            Debug.LogWarning("No CubeController component. Cannot animate!");
             return; // not animating
         }
 
-        string s = "";
-        for (int i = 0; i < path.Count; i++)
+        demo.ClearQueue();
+        foreach (string word in path)
         {
-            if ((string) path[i] == "") continue;
-            s += path[i] + " ";
+            demo.QueueCommand(word, 100);
         }
-        Debug.Log("FOUND " + s);
+    }
 
-        demo.ParseRecipe(s);
+    bool NotAnimating()
+    {
+        CubeController controller = GetComponent<CubeController>();
+        return controller.Finished();
     }
 
     void ExecutePath(List<string> path)
