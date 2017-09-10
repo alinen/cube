@@ -472,6 +472,8 @@ public class CubePlanner : MonoBehaviour
         if (cubie == null) return true; // no work to do!
 
         Debug.Log("FIX " + cubie.id);
+        LookAt camera = Camera.main.GetComponent<LookAt>();
+        camera.SetTarget(cubie.transform);
 
         // case 1: no work to do -> no work to do, return
         // case 2: cube is in top row, but wrong pos or ori
@@ -555,6 +557,8 @@ public class CubePlanner : MonoBehaviour
         if (cubie == null) return true; // no work to do!
 
         Debug.Log("FIX " + cubie.id);
+        LookAt camera = Camera.main.GetComponent<LookAt>();
+        camera.SetTarget(cubie.transform);
 
         // case 1: no work to do -> no work to do, return
         // case 2: cube is in top row, but wrong pos or ori
