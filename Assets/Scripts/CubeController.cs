@@ -149,6 +149,7 @@ public class CubeController : MonoBehaviour {
         Vector3 axis;
         float amount = 0.0f;
 
+        _cube.SortCubeGroups();
         _cube.CmdToTurn(word, out list, out center, out axis, out amount);
         rotations.Add(new Rotator(list, center, axis, amount, turnRate));
 

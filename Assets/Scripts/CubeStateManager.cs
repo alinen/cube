@@ -164,6 +164,16 @@ public class CubeStateManager
             CheckAngle(child, 1);
             CheckAngle(child, 2);
         }
+
+        Debug.Assert(zeroX.Count == 8);
+        Debug.Assert(zeroY.Count == 8);
+        Debug.Assert(zeroZ.Count == 8);
+        Debug.Assert(posX.Count == 9);
+        Debug.Assert(posY.Count == 9);
+        Debug.Assert(posZ.Count == 9);
+        Debug.Assert(negX.Count == 9);
+        Debug.Assert(negY.Count == 9);
+        Debug.Assert(negZ.Count == 9);
     }
 
     void CheckAngle(Transform t, int idx)

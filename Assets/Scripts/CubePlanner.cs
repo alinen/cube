@@ -102,7 +102,7 @@ public class CubePlanner : MonoBehaviour
                 // in the future, we don't need a shadow cube
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && NotAnimating())
             {
                 StepTask();
             }
@@ -127,10 +127,10 @@ public class CubePlanner : MonoBehaviour
         List<string> path = new List<string>();
         SolveTask(ref path);
 
-        //AnimatePath(path); // for visuals, changes display cube over many frames
+        AnimatePath(path); // for visuals, changes display cube over many frames
         // apply state changes and get ready for next iteration
         Debug.Log("PATH " + PathToString(path));
-        ExecutePath(path); // changes planning cube immediately
+        //ExecutePath(path); // changes planning cube immediately
     }
 
     void SolveTask(ref List<string> path)
