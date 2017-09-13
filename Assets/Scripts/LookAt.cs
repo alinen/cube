@@ -37,6 +37,6 @@ public class LookAt : MonoBehaviour
         {
             transform.position = targetPos;
         }
-        transform.rotation = Quaternion.LookRotation(-transform.position);
+        transform.rotation = Quaternion.LookRotation(-transform.position, Camera.main.transform.up);
 	}
 }

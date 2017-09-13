@@ -531,4 +531,17 @@ public class CubeInfo
         }
         return false;
     }
+
+    public CubeInfo.Cubie FindBottomCenter()
+    {
+        foreach (Cubie info in _cubeInfos)
+        {
+            if (info.homePos.y == -1.25 && info.homePos.x == 0 && info.homePos.z == 0)
+            {
+                return info;
+            }
+        }
+        return null;
+
+    }
 }
