@@ -159,6 +159,12 @@ public class CubePlanner : MonoBehaviour
         Debug.Log("Solve task: " + _currentTask + " "+ success);
     }
 
+    void FocusCubie(Vector3 pos)
+    {
+        LookAt camera = Camera.main.GetComponent<LookAt>();
+        if (camera != null) camera.SetTarget(pos);
+    }
+
     void FocusCubie(CubeInfo.Cubie cubie)
     {
         Debug.Log("FIX CUBIE: " + cubie.id);
@@ -172,7 +178,7 @@ public class CubePlanner : MonoBehaviour
         List<CubeInfo.Cubie> bottom = _cubies.AnalyzeBottomCorners(ref cubie, _solved);
         if (cubie == null) return true; // no work to do
 
-        FocusCubie(cubie);
+        FocusCubie(new Vector3(-1,-2,-1));
 
         string[] down = { "D", "D'", "D2", "" };
         ArrayList steps = new ArrayList();
@@ -188,7 +194,7 @@ public class CubePlanner : MonoBehaviour
         List<CubeInfo.Cubie> bottom = _cubies.AnalyzeBottomCornerOri(ref cubie, _solved);
         if (cubie == null) return true; // no work to do
 
-        FocusCubie(cubie);
+        FocusCubie(new Vector3(-1,-2,-1));
 
         string[] down = { "D", "D'", "D2", "" };
         string[] seqnA = 
@@ -237,7 +243,7 @@ public class CubePlanner : MonoBehaviour
         List<CubeInfo.Cubie> bottom = _cubies.AnalyzeBottomMiddleOri(ref cubie, _solved);
         if (cubie == null) return true; // no work to do
 
-        FocusCubie(cubie);
+        FocusCubie(new Vector3(-1,-2,-1));
 
         string[] down = { "D", "D'", "D2", "" };
         string[] seqnA =
@@ -286,7 +292,7 @@ public class CubePlanner : MonoBehaviour
         bool sorted = _cubies.BottomMiddlesCorrectPositions();
         if (sorted) return true; // no work to do
 
-        FocusCubie(bottom[0]);
+        FocusCubie(new Vector3(-1, -2, -1));
 
         // case 1: need to rotate three
         // case 2: need to swap consecutive cubies
@@ -336,7 +342,7 @@ public class CubePlanner : MonoBehaviour
     {
         List<CubeInfo.Cubie> bottomCorners = _cubies.FindBottomCorners();
         bool sorted = _cubies.BottomCornersSorted();
-        FocusCubie(bottomCorners[0]);
+        FocusCubie(new Vector3(-1, -2, -1));
 
         // case 1: sorted but possible needs a rotation
         // case 2: need to rotate three
@@ -493,7 +499,7 @@ public class CubePlanner : MonoBehaviour
         CubeInfo.Cubie cubie = null;
         List<CubeInfo.Cubie> topCornerCubes = _cubies.AnalyzeTopCorner(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
-        FocusCubie(cubie);
+        FocusCubie(new Vector3(1,2,1));
 
         // case 1: no work to do -> no work to do, return
         // case 2: cube is in top row, but wrong pos or ori
@@ -575,7 +581,7 @@ public class CubePlanner : MonoBehaviour
         CubeInfo.Cubie cubie = null;
         List<CubeInfo.Cubie> topMiddleCubes = _cubies.AnalyzeTopMiddle(ref cubie, _solved);
         if (cubie == null) return true; // no work to do!
-        FocusCubie(cubie);
+        FocusCubie(new Vector3(1,2,1));
 
         // case 1: no work to do -> no work to do, return
         // case 2: cube is in top row, but wrong pos or ori

@@ -9,6 +9,7 @@ public class LookAt : MonoBehaviour
     public float rate = 5.0f;
 
     private Vector3 _startPos;
+    private Vector3 _targetPos;
     private float _time;
 
 	void Start ()
@@ -17,6 +18,14 @@ public class LookAt : MonoBehaviour
         SetTarget(target);
 	}
 	
+    public void SetTarget(Vector3 t)
+    {
+        target = null;
+        _startPos = transform.position;
+        _targetPos = t.normalized * radius;
+        _time = 0;
+    }
+
     public void SetTarget(Transform t)
     {
         target = t;
@@ -26,7 +35,12 @@ public class LookAt : MonoBehaviour
 
 	void Update ()
     {
-        Vector3 targetPos = target.position.normalized * radius;
+        Vector3 targetPos = _targetPos;
+        if (target)
+        {
+            targetPos = target.position.normalized * radius;
+        }
+
         _time += Time.deltaTime;
         if (_time < rate)
         {
