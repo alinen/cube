@@ -51,14 +51,26 @@ public class CubePlanner : MonoBehaviour
             }
         }
 
-        _tasks.Add(new CubeTask(SolveTopMiddle, _cubies.TopMiddleSolved));
-        _tasks.Add(new CubeTask(SolveTopCorners, _cubies.TopCornersSolved));
-        _tasks.Add(new CubeTask(SolveMiddleMiddles, _cubies.MiddleMiddleSolved));
-        _tasks.Add(new CubeTask(SolveOneCornerPosition, _cubies.BottomOneCornerCorrect));
-        _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions));
-        _tasks.Add(new CubeTask(SolveBottomMiddlePositions, _cubies.BottomMiddlesCorrectPositions));
-        _tasks.Add(new CubeTask(SolveBottomCornerOri, _cubies.BottomCornersCorrectOri));
-        _tasks.Add(new CubeTask(SolveBottomMiddleOri, _cubies.BottomMiddlesCorrectOri));
+        _tasks.Add(new CubeTask(SolveTopMiddle, _cubies.TopMiddleSolved, "top row", "middle cubes"));
+        _tasks.Add(new CubeTask(SolveTopCorners, _cubies.TopCornersSolved, "top row", "corner cubes"));
+        _tasks.Add(new CubeTask(SolveMiddleMiddles, _cubies.MiddleMiddleSolved, "middle row", "middle cubes"));
+        _tasks.Add(new CubeTask(SolveOneCornerPosition, _cubies.BottomOneCornerCorrect, "bottom row", "choose anchor corner"));
+        _tasks.Add(new CubeTask(SolveBottomCornerPositions, _cubies.BottomCornersCorrectPositions, "bottom row", "corner cube positions"));
+        _tasks.Add(new CubeTask(SolveBottomMiddlePositions, _cubies.BottomMiddlesCorrectPositions, "bottom row", "middle cube positions"));
+        _tasks.Add(new CubeTask(SolveBottomCornerOri, _cubies.BottomCornersCorrectOri, "bottom row", "twirl corners"));
+        _tasks.Add(new CubeTask(SolveBottomMiddleOri, _cubies.BottomMiddlesCorrectOri, "bottom row", "flip middles"));
+    }
+
+    public string GetCurrentTaskName()
+    {
+        CubeTask task = _tasks[_currentTask] as CubeTask;
+        return task.taskName;
+    }
+
+    public string GetCurrentTaskRow()
+    {
+        CubeTask task = _tasks[_currentTask] as CubeTask;
+        return task.rowName;
     }
 
     void Update ()
