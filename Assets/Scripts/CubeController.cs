@@ -127,6 +127,39 @@ public class CubeController : MonoBehaviour {
             return false;
         }
     }
+
+    public class Colorator : Animator
+    {
+        private float _rate;
+        private float _amount;
+        private float _delta;
+
+        public Colorator(GameObject root, float rate = 40)
+        {
+            _rate = rate;
+        }
+
+        public override void Start()
+        {
+            _delta = 0.0f;
+            //Debug.Log(_axis + " " + _amount);
+        }
+
+        public override void Update()
+        {
+            _delta += _rate * Time.deltaTime;
+        }
+
+        public override bool IsDone()
+        {
+            if (_delta > _amount)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+    private List<Colorator> appearance = new List<Colorator>();
     private List<Animator> rotations = new List<Animator>();
     private int current;
 
