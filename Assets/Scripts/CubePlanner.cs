@@ -116,6 +116,8 @@ public class CubePlanner : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) && NotAnimating())
             {
+                _cube.SortCubeGroups();
+
                 StepTask();
             }
         }
