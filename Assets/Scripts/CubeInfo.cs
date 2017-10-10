@@ -35,7 +35,7 @@ public class CubeInfo
             info.transform = t;
             info.homePos = t.localPosition;
             info.homeRot = t.localRotation.eulerAngles;
-            Debug.Log(t.transform.parent.gameObject.name+" "+t.gameObject.name+" "+info.id + " " + info.homePos + " " + info.homeRot);
+            //Debug.Log(t.transform.parent.gameObject.name+" "+t.gameObject.name+" "+info.id + " " + info.homePos + " " + info.homeRot);
             _cubeInfos.Add(info);
         }
 	}
@@ -59,6 +59,17 @@ public class CubeInfo
             }
         }
         return true;
+    }
+
+    public void EnableColor(Cubie cubie, bool enable)
+    {
+        Renderer[] renderers = cubie.transform.gameObject.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            Color c = r.material.color;
+            c.a = enable ? 1.0f : 0;
+            r.material.color = c;
+        }
     }
 
     public bool IsSolved(Cubie c)
@@ -211,6 +222,10 @@ public class CubeInfo
         return Mathf.Abs(c.transform.localPosition.y + 1.25f) < 0.0001f;
     }
 
+    public bool HomeIsTop(Cubie c)
+    {
+        return Mathf.Abs(c.homePos.y - 1.25f) < 0.0001f;
+    }
 
     public bool HomeIsRightBack(Cubie c)
     {
@@ -530,5 +545,18 @@ public class CubeInfo
             if (CorrectPos(c)) return true;
         }
         return false;
+    }
+
+    public CubeInfo.Cubie FindBottomCenter()
+    {
+        foreach (Cubie info in _cubeInfos)
+        {
+            if (info.homePos.y == -1.25 && info.homePos.x == 0 && info.homePos.z == 0)
+            {
+                return info;
+            }
+        }
+        return null;
+
     }
 }

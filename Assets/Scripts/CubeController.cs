@@ -10,6 +10,7 @@ public class CubeController : MonoBehaviour {
         public abstract void Update();
         public abstract void Start();
         public abstract bool IsDone();
+        public virtual string GetName() { return ""; }
     };
 
     public class Spiner : Animator
@@ -69,6 +70,7 @@ public class CubeController : MonoBehaviour {
 
     public class Rotator : Animator
     {
+        private string _cmd;
         private List<Transform> _list;
         private Vector3 _center;
         private Vector3 _axis;
@@ -77,15 +79,18 @@ public class CubeController : MonoBehaviour {
         private float _delta;
         private List<Quaternion> _targets = new List<Quaternion>();
 
-        public Rotator(List<Transform> list, Vector3 center, Vector3 axis, float amount, float rate = 40)
+        public Rotator(List<Transform> list, Vector3 center, Vector3 axis, float amount, float rate = 40, string c = "")
         {
             _list = list;
             _center = center;
             _axis = axis;
             _amount = amount;
             _rate = rate;
+            _cmd = c;
             //Debug.Log("Create " + axis + " " + amount);
         }
+
+        public override string GetName() { return _cmd;  }
 
         public override void Start()
         {
@@ -122,6 +127,39 @@ public class CubeController : MonoBehaviour {
             return false;
         }
     }
+
+    public class Colorator : Animator
+    {
+        private float _rate;
+        private float _amount;
+        private float _delta;
+
+        public Colorator(GameObject root, float rate = 40)
+        {
+            _rate = rate;
+        }
+
+        public override void Start()
+        {
+            _delta = 0.0f;
+            //Debug.Log(_axis + " " + _amount);
+        }
+
+        public override void Update()
+        {
+            _delta += _rate * Time.deltaTime;
+        }
+
+        public override bool IsDone()
+        {
+            if (_delta > _amount)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+    private List<Colorator> appearance = new List<Colorator>();
     private List<Animator> rotations = new List<Animator>();
     private int current;
 
@@ -149,8 +187,9 @@ public class CubeController : MonoBehaviour {
         Vector3 axis;
         float amount = 0.0f;
 
+        _cube.SortCubeGroups();
         _cube.CmdToTurn(word, out list, out center, out axis, out amount);
-        rotations.Add(new Rotator(list, center, axis, amount, turnRate));
+        rotations.Add(new Rotator(list, center, axis, amount, turnRate, word));
 
         if (rotations.Count == 1) // was previously empty, initialize rotations
         {
@@ -189,4 +228,30 @@ public class CubeController : MonoBehaviour {
             }
         }
 	}
+
+    public string GetCurrentCommand()
+    {
+        if (current >= rotations.Count) return "";
+        Animator rotator = rotations[current] as Animator;
+        return rotator.GetName();
+    }
+
+    public string GetCommandString()
+    {
+        if (current >= rotations.Count) return "";
+
+        string s = "";
+        foreach (Animator a in rotations)
+        {
+            if (a == rotations[current])
+            {
+                s += "<color=yellow><b>" + a.GetName() + "</b></color> ";
+            }
+            else
+            {
+                s += a.GetName() + " ";
+            }
+        }
+        return s;
+    }
 }
