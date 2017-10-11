@@ -1,0 +1,58 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0;text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title>Rubik's Cube Solver and Visualization</title>
+</head>
+<body>
+<h1>Rubik's Cube Solver</h1>
+<p style="width: 960">The interactive demo is 
+<a href="Builds/index.html">here</a>. Press space to step forward in the solve.
+Reload the page to get a new random scramble of the cube.
+<p><img src="Docs/rubiks2.gif"/>
+
+<p style="width: 960">This project implements the algorithm for solving the Rubik's Cube described in 
+the book <i>Mastering Rubik's Cube</i> by Don Taylor.
+<p><img src="Docs/MasteringTheCube.jpg"/>
+
+<p style="width: 960">This is a cookbook approach which solves the cube row by row. For each task,
+we first select a cubie (or cubies) to solve. Then we search for a sequence of moves that places the 
+cubie to the desired place without displacing the cubies we've already solved.
+
+<h1>Solving - top row to bottom row</h1>
+
+<h3>Top middle</h3>
+<p><img src="Docs/cubeTopCorners.gif"/>
+
+<h3>Top corners</h3>
+<p><img src="Docs/cubeTopMiddle.gif"/>
+
+<h3>Middle middles</h3>
+<p><img src="Docs/cubeMiddleMiddle.gif"/>
+
+<h3>Bottom corner positions</h3>
+<p><img src="Docs/cubeBottomTopPos.gif"/>
+
+<h3>Bottom middle positions</h3>
+<p><img src="Docs/cubeBottomMiddlePos.gif"/>
+
+<h3>Twirl bottom corners</h3>
+<p><img src="Docs/cubeBottomCornerTwirl.gif"/>
+
+<h3>Flip bottom middles</h3>
+<p><img src="Docs/cubeBottomMiddleFlip.gif"/>
+
+
+<hr>
+<h1>Visualizations</h1>
+<p style="width: 960">Current work on this project is looking at how to best visualize the 
+sequence of moves for solving the cube.
+
+<p style="width: 960">Below is a test where colors are used to highlight which cubes are important 
+for the sequence.
+<p><img src="Docs/colorTest.gif"/>
+
+<hr>
+
+</body>
+</html>
+
